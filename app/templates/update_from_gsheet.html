@@ -1,0 +1,91 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+    <title>Import Student Data from Google Sheet</title>
+{% endblock %}
+
+{% block content %}
+<body>
+    <div class="container mt-5">
+        <h1>Import from Google Sheet</h1>
+        <form method="POST" id="gsheetForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="spreadsheet_id" class="form-label">Google Spreadsheet ID</label>
+                <input type="text" class="form-control" id="spreadsheet_id" name="spreadsheet_id" required>
+                <div class="form-text">ID spreadsheet nằm trong URL của Google Sheet (ví dụ: 1GySn5YUevc0NDOgjNI39IHiyAqrB251gLWcZ7AVOzdY)</div>
+            </div>
+            <div class="mb-3">
+                <label for="sheet_name" class="form-label">Sheet Name</label>
+                <input type="text" class="form-control" id="sheet_name" name="sheet_name" value="student_data" required>
+                <div class="form-text">Tên sheet chứa dữ liệu sinh viên</div>
+            </div>
+            <div class="mb-3">
+                <label for="api_key" class="form-label">Google API Key</label>
+                <input type="text" class="form-control" id="api_key" name="api_key" required>
+                <div class="form-text">API key để truy cập Google Sheets API</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Cập nhật dữ liệu</button>
+        </form>
+
+        <div id="statusMessage" class="mt-3">
+            <!-- Hiển thị trạng thái chung -->
+        </div>
+        <div id="logOutput" class="mt-3">
+            <h5>Logs:</h5>
+            <ul id="logList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('gsheetForm');
+        const statusMessageDiv = document.getElementById('statusMessage');
+        const logList = document.getElementById('logList');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            // Reset giao diện
+            statusMessageDiv.innerHTML = '<div class="alert alert-info">Đang xử lý dữ liệu từ Google Sheets...</div>';
+            logList.innerHTML = '';
+
+            try {
+                // Gửi yêu cầu AJAX
+                const response = await fetch("{% url 'update_from_gsheet' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    statusMessageDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                    return;
+                }
+
+                // Hiển thị kết quả từng dòng
+                data.results.forEach(result => {
+                    const logItem = document.createElement('li');
+                    if (result.status === 'error') {
+                        logItem.textContent = `Lỗi khi xử lý sinh viên ${result.full_name} (${result.student_code}, lớp ${result.student_class}): ${result.error}`;
+                        logItem.style.color = 'red';
+                    } else {
+                        logItem.textContent = `Đã xử lý sinh viên: ${result.full_name} (${result.student_code}, lớp ${result.student_class}) - ${result.created ? "Tạo mới" : "Đã tồn tại"}`;
+                        logItem.style.color = 'green';
+                    }
+                    logList.appendChild(logItem);
+                });
+
+                statusMessageDiv.innerHTML = '<div class="alert alert-success">Cập nhật dữ liệu hoàn tất.</div>';
+            } catch (err) {
+                statusMessageDiv.innerHTML = `<div class="alert alert-danger">Có lỗi xảy ra: ${err.message}</div>`;
+            }
+        });
+    </script>
+</body>
+{% endblock %}

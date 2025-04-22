@@ -1,0 +1,540 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<style>
+    :root {
+        --primary: #1b1d4d;
+        --primary-light: #31356d;
+        --primary-lighter: #e8eaf6;
+        --primary-dark: #0c0d24;
+        --white: #ffffff;
+        --light-gray: #f5f7fa;
+        --gray: #eaecf0;
+        --text: #4d5875;
+    }
+    
+    /* Thanh tìm kiếm tổng hợp */
+    .search-wrapper {
+        max-width: 900px;
+        margin: 2rem auto 3rem;
+    }
+    
+    /* Container cho input và nút */
+    .search-input-container {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .global-search-container {
+        display: flex;
+        align-items: center;
+        background-color: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(27, 29, 77, 0.1);
+        padding: 4px 4px 4px 16px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        flex: 1;
+    }
+    
+    .global-search-container:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 8px 24px rgba(27, 29, 77, 0.15);
+    }
+    
+    .search-icon {
+        display: flex;
+        align-items: center;
+        color: var(--primary);
+        margin-right: 12px;
+    }
+    
+    .global-search-input {
+        flex: 1;
+        border: none;
+        padding: 14px 0;
+        font-size: 1rem;
+        color: var(--text);
+        background: transparent;
+        outline: none;
+    }
+    
+    .global-search-input::placeholder {
+        color: #a0aec0;
+    }
+    
+    .search-divider {
+        width: 1px;
+        height: 24px;
+        background-color: var(--gray);
+        margin: 0 12px;
+    }
+    
+    .search-filters-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--light-gray);
+        color: var(--primary);
+        padding: 10px 16px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .search-filters-toggle:hover {
+        background-color: var(--primary-lighter);
+    }
+    
+    /* Nút tìm kiếm và reset */
+    .search-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-search, .btn-reset {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-search {
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+    }
+    
+    .btn-search:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+    
+    .btn-reset {
+        background-color: var(--white);
+        color: var(--primary);
+        border: 1px solid var(--gray);
+    }
+    
+    .btn-reset:hover {
+        background-color: var(--light-gray);
+        transform: translateY(-2px);
+    }
+    
+    /* Search tags */
+    .search-tags {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 8px;
+        gap: 8px;
+        padding-left: 16px;
+    }
+    
+    .search-tag {
+        font-size: 0.8rem;
+        color: var(--text);
+        background-color: var(--light-gray);
+        padding: 4px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .search-tag:hover {
+        background-color: var(--primary-lighter);
+        color: var(--primary);
+    }
+    
+    /* Tab buttons */
+    .tab-buttons-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .job-btn {
+        background-color: var(--white);
+        border: 1px solid var(--gray);
+        color: var(--text);
+        padding: 12px 24px;
+        margin: 0 8px;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .job-btn:hover {
+        background-color: var(--light-gray);
+    }
+    
+    .job-btn.selected {
+        background-color: var(--primary);
+        color: var(--white);
+        border-color: var(--primary);
+    }
+    
+    /* Filter container */
+    .filter-container {
+        margin-bottom: 2rem;
+    }
+    
+    .filter-form {
+        background-color: var(--white);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 16px rgba(27, 29, 77, 0.08);
+    }
+    
+    .filter-actions {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--gray);
+    }
+    
+    /* Form controls */
+    /* .form-control, .form-select {
+        border: 1px solid var(--gray);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+    } */
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(27, 29, 77, 0.15);
+    }
+    
+    .form-floating label {
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Job list container */
+    #job-list-container {
+        background-color: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(27, 29, 77, 0.08);
+        overflow: hidden;
+    }
+    
+    /* Hover effect for rows */
+    tbody tr {
+        transition: background-color 0.2s ease;
+    }
+    
+    tbody tr:hover {
+        background-color: var(--light-gray);
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .search-input-container {
+            flex-direction: column;
+        }
+        
+        .search-buttons {
+            width: 100%;
+            justify-content: center;
+            margin-top: 12px;
+        }
+        
+        .global-search-container {
+            flex-direction: column;
+            padding: 8px;
+        }
+        
+        .search-icon {
+            margin-right: 0;
+            margin-bottom: 8px;
+        }
+        
+        .global-search-input {
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+        
+        .search-divider {
+            width: 100%;
+            height: 1px;
+            margin: 8px 0;
+        }
+        
+        .search-filters-toggle {
+            width: 100%;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        
+        .search-tags {
+            justify-content: center;
+        }
+        
+        .job-btn {
+            padding: 10px 16px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1 class="text-center mb-4">DANH SÁCH CÔNG VIỆC</h1>
+
+    <!-- Thanh tìm kiếm tổng hợp cải tiến -->
+    <div class="search-wrapper">
+        <div class="search-input-container">
+            <div class="global-search-container">
+                <div class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                </div>
+                <input type="text" id="global-search" class="global-search-input" placeholder="Tìm kiếm công việc, công ty, kỹ năng, vị trí, mức lương..." aria-label="Search">
+                <div class="search-divider"></div>
+                <div class="search-filters-toggle" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                    <span>Bộ lọc</span>
+                </div>
+            </div>
+            
+            <!-- Các nút tìm kiếm và reset bên cạnh thanh tìm kiếm -->
+            <div class="search-buttons">
+                <button type="button" id="global-search-button" class="btn btn-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 24px; height: 24px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                </button>
+                <button type="button" class="btn btn-reset" id="reset-search" data-bs-toggle="tooltip" title="Reset bộ lọc">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 24px; height: 24px;">
+                        <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="search-tags">
+            <span class="search-tag">analyst</span>
+            <span class="search-tag">VNG</span>
+            <span class="search-tag">python</span>
+            <span class="search-tag">sql</span>
+        </div>
+    </div>
+
+    <!-- Button toggle between views -->
+    <div class="tab-buttons-container">
+        <button class="btn job-btn" id="all-jobs-btn">Tất cả công việc</button>
+        <button class="btn job-btn" id="recommended-jobs-btn">Đề xuất cho ngành học của bạn</button>
+    </div>
+
+    <!-- Filter Section (Collapse) -->
+    <div class="collapse filter-container" id="advancedFilters">
+        <form method="GET" id="filter-form" class="filter-form">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="text" name="job_name" id="job_name" class="form-control" placeholder="Nhập tên công việc" value="{{ request.GET.job_name }}">
+                        <label for="job_name">Tên công việc</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="text" name="company" id="company" class="form-control" placeholder="Nhập tên công ty" value="{{ request.GET.company }}">
+                        <label for="company">Công ty</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select name="industry" id="industry" class="form-select">
+                            <option value="">Tất cả ngành nghề</option>
+                            {% for industry in industries %}
+                                <option value="{{ industry.id }}" {% if industry.id == request.GET.industry|default:'' %}selected{% endif %}>{{ industry.industry_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="industry">Ngành nghề</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="number" name="salary_min" id="salary_min" class="form-control" placeholder="Nhập lương tối thiểu" value="{{ request.GET.salary_min }}">
+                        <label for="salary_min">Lương tối thiểu</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ẩn các nút tìm kiếm và reset trong form -->
+            <input type="hidden" name="search" id="hidden-search-input" value="{{ request.GET.search }}">
+            
+            <div class="filter-actions text-end mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                        <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                    Lọc kết quả
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Job List Container -->
+    <div id="job-list-container" class="mt-4">
+        {% include 'job/job_table.html' with jobs=jobs %}
+    </div>
+    <br><br>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý tìm kiếm tổng hợp
+        const globalSearch = document.getElementById('global-search');
+        
+        // Xử lý tìm kiếm khi nhấn Enter
+        globalSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+        
+        // Xử lý tìm kiếm khi nhấn nút search
+        document.querySelector('.btn-search').addEventListener('click', function(e) {
+            if (!document.querySelector('#filter-form').checkValidity()) {
+                // Nếu form không hợp lệ, để mặc định hành vi submit
+                return;
+            }
+            
+            // Nếu form hợp lệ, ngăn hành vi mặc định và thực hiện tìm kiếm
+            e.preventDefault();
+            performSearch();
+        });
+        
+        // Hàm thực hiện tìm kiếm
+        function performSearch() {
+            const searchTerm = globalSearch.value.trim();
+            const form = document.getElementById('filter-form');
+            
+            // Tạo một input ẩn để lưu giá trị tìm kiếm
+            let searchInput = form.querySelector('input[name="search"]');
+            if (!searchInput) {
+                searchInput = document.createElement('input');
+                searchInput.type = 'hidden';
+                searchInput.name = 'search';
+                form.appendChild(searchInput);
+            }
+            
+            searchInput.value = searchTerm;
+            form.submit();
+        }
+        
+        // Điền giá trị tìm kiếm từ URL nếu có
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchValue = urlParams.get('search');
+        if (searchValue) {
+            globalSearch.value = searchValue;
+        }
+        
+        // Xử lý tab
+        let allJobsBtn = document.getElementById('all-jobs-btn');
+        let recommendedJobsBtn = document.getElementById('recommended-jobs-btn');
+        
+        // Kiểm tra trạng thái lưu trong localStorage
+        let selectedTab = localStorage.getItem("selectedJobTab") || "all";
+        
+        if (selectedTab === "recommended") {
+            recommendedJobsBtn.classList.add('selected');
+            fetchJobs("{% url 'depart_recommended_jobs' %}");
+        } else {
+            allJobsBtn.classList.add('selected');
+            fetchJobs("{% url 'job_list' %}");
+        }
+        
+        // Xử lý sự kiện click cho các nút tab
+        document.querySelectorAll('.job-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Loại bỏ class 'selected' khỏi tất cả nút
+                document.querySelectorAll('.job-btn').forEach(function(btn) {
+                    btn.classList.remove('selected');
+                });
+                
+                // Thêm class 'selected' cho nút được chọn
+                this.classList.add('selected');
+                
+                // Lưu trạng thái vào localStorage
+                if (this.id === "recommended-jobs-btn") {
+                    localStorage.setItem("selectedJobTab", "recommended");
+                    fetchJobs("{% url 'depart_recommended_jobs' %}");
+                } else {
+                    localStorage.setItem("selectedJobTab", "all");
+                    fetchJobs("{% url 'job_list' %}");
+                }
+            });
+        });
+        
+        // Xử lý reset filter
+        document.getElementById("reset-filter").addEventListener("click", function () {
+            let form = document.getElementById("filter-form");
+            form.reset(); // Reset lại các input về mặc định
+            
+            // Xóa cả ô tìm kiếm tổng hợp
+            document.getElementById('global-search').value = '';
+            
+            // Loại bỏ tất cả input ẩn có thể đã được thêm vào
+            const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+            hiddenInputs.forEach(input => {
+                if (input.name !== '_csrf' && input.name !== 'csrfmiddlewaretoken') {
+                    input.remove();
+                }
+            });
+            
+            window.location.href = window.location.pathname; // Load lại trang để xóa bộ lọc
+        });
+        
+        // Hiệu ứng đẹp cho các thẻ tìm kiếm
+        document.querySelectorAll('.search-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const searchInput = document.getElementById('global-search');
+                const currentText = searchInput.value;
+                const tagText = this.textContent;
+                
+                if (!currentText.includes(tagText)) {
+                    // Thêm từ khóa vào ô tìm kiếm nếu chưa có
+                    if (currentText) {
+                        searchInput.value = currentText + ' ' + tagText;
+                    } else {
+                        searchInput.value = tagText;
+                    }
+                }
+                
+                searchInput.focus();
+            });
+        });
+    });
+    
+    // Hàm fetch jobs
+    function fetchJobs(url) {
+        let params = new URLSearchParams(window.location.search); // Lấy toàn bộ tham số hiện tại
+        url += '?' + params.toString(); // Gắn tham số vào URL
+        
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text();
+        })
+        .then((html) => {
+            document.getElementById("job-list-container").innerHTML = html;
+        })
+        .catch((error) => {
+            console.error("Error fetching jobs:", error);
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,438 @@
+<div id="chat-container" class="chat-normal">
+    <div id="chat-header">
+        <div class="header-controls">
+            <button id="expand-chat" class="control-button" title="Mở rộng khung chat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/>
+                </svg>
+            </button>
+        </div>
+        <span>Gemini Assistant</span>
+        <button class="close-chat-gemini" id="close-chat">×</button>
+    </div>
+    <div id="chat-body"></div>
+    <div id="chat-footer">
+        <textarea id="chat-input" placeholder="Nhập tin nhắn... (Shift+Enter để xuống dòng)"></textarea>
+        <button id="send-chat" class="msg_send_btn_gemini">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="send_icon">
+                <path d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z" />
+            </svg>
+         </button>
+    </div>
+</div>
+
+<button id="open-chat">💬</button>
+
+<style>
+#chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    overflow: hidden;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+#chat-container.chat-expanded {
+    width: 450px;
+    height: 550px;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-header {
+    background: #1b1d4d;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+}
+
+.control-button {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.control-button:hover {
+    opacity: 1;
+}
+
+#chat-body {
+    height: 250px;
+    padding: 10px;
+    overflow-y: auto;
+    background: #f0f0f5;
+    display: flex;
+    flex-direction: column;
+    z-index: 9999 !important;
+    transition: height 0.3s ease;
+    flex: 0 0 auto;
+}
+
+.chat-expanded #chat-body {
+    height: 450px;
+    flex: 1 1 auto;
+}
+
+#chat-footer {
+    display: flex;
+    padding: 15px;
+    background: #f0f0f5;
+    position: relative;
+    bottom: 0;
+}
+
+#chat-input {
+    flex-grow: 1;
+    padding: 8px 40px 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    transition: border 0.3s ease;
+    resize: none;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+#chat-input:focus {
+    border-color: #1b1d4d;
+}
+
+.close-chat-gemini{
+    background-color: transparent;
+    color: white;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-chat-gemini:hover {
+    color: #f0f0f5;
+}
+
+.msg_send_btn_gemini {
+    background: #1b1d4d;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 17px;
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.msg_send_btn_gemini:hover {
+    background: #4d508f;
+}
+
+.send_icon {
+    width: 16px;
+    height: 16px;
+}
+
+#open-chat {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1b1d4d;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+#open-chat:hover {
+    transform: scale(1.1);
+}
+
+.user-message {
+    background: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 8px 12px;
+    margin: 5px;
+    border: #1b1d4d 1px solid;
+    border-radius: 10px;
+    max-width: 80%;
+    display: inline-block;
+    align-self: flex-end;
+    clear: both;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.bot-message {
+    background: #1b1d4d;
+    color: white;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 10px;
+    max-width: 80%;
+    display: inline-block;
+    align-self: flex-start;
+    clear: both;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 600px) {
+    #chat-container {
+        width: 300px;
+    }
+    
+    #chat-container.chat-expanded {
+        width: 90%;
+        height: 500px;
+    }
+}
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const chatContainer = document.getElementById("chat-container");
+        const openChat = document.getElementById("open-chat");
+        const closeChat = document.getElementById("close-chat");
+        const expandChat = document.getElementById("expand-chat");
+        const chatBody = document.getElementById("chat-body");
+        const chatInput = document.getElementById("chat-input");
+        const sendChat = document.getElementById("send-chat");
+        
+        // Hàm lưu lịch sử tin nhắn vào localStorage
+        function saveChatHistory() {
+            localStorage.setItem("chatHistory", chatBody.innerHTML);
+        }
+        
+        // Hàm tải lại lịch sử chat khi mở trang
+        function loadChatHistory() {
+            const savedHistory = localStorage.getItem("chatHistory");
+            if (savedHistory) {
+                chatBody.innerHTML = savedHistory;
+            }
+        }
+        
+        // Tải lại tin nhắn khi mở trang
+        loadChatHistory();
+        
+        // Lưu trạng thái mở rộng
+        function saveExpandState(isExpanded) {
+            localStorage.setItem("chatExpandState", isExpanded);
+        }
+        
+        // Tải trạng thái mở rộng
+        function loadExpandState() {
+            const expandState = localStorage.getItem("chatExpandState");
+            if (expandState === "true") {
+                chatContainer.classList.add("chat-expanded");
+                expandChat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5zm5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5zM0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zm10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4z"/>
+                </svg>`;
+            }
+        }
+        
+        // Kiểm tra trạng thái mở rộng khi tải trang
+        loadExpandState();
+        
+        openChat.addEventListener("click", function () {
+            chatContainer.style.display = "block";
+            openChat.style.display = "none";
+            // Scroll to bottom when opening chat
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+        
+        closeChat.addEventListener("click", function () {
+            chatContainer.style.display = "none";
+            openChat.style.display = "block";
+        });
+        
+        // Toggle expand/collapse chat window
+        expandChat.addEventListener("click", function() {
+            chatContainer.classList.toggle("chat-expanded");
+            const isExpanded = chatContainer.classList.contains("chat-expanded");
+            
+            // Change icon based on state
+            if (isExpanded) {
+                expandChat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5zm5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5zM0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zm10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4z"/>
+                </svg>`;
+            } else {
+                expandChat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/>
+                </svg>`;
+            }
+            
+            // Save expand state
+            saveExpandState(isExpanded);
+            
+            // Scroll to bottom after expanding
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+        
+        // Hàm gửi tin nhắn
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            // Convert line breaks to HTML
+            const formattedMessage = message.replace(/\n/g, '<br>');
+            
+            // Hiển thị tin nhắn người dùng
+            chatBody.innerHTML += `<div class="user-message">${formattedMessage}</div>`;
+            saveChatHistory();
+            chatInput.value = "";
+            
+            // Reset textarea height
+            chatInput.style.height = 'auto';
+            
+            // Scroll to latest message
+            chatBody.scrollTop = chatBody.scrollHeight;
+            
+            // Show loading indicator
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "bot-message";
+            loadingDiv.innerHTML = '<div class="loading-dots"><span>.</span><span>.</span><span>.</span></div>';
+            chatBody.appendChild(loadingDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            
+            fetch("/chatbotgemini/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                credentials: 'include',  // Thêm dòng này để gửi cookies xác thực
+                body: JSON.stringify({ message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading indicator
+                chatBody.removeChild(loadingDiv);
+                
+                if (data.response) {
+                    chatBody.innerHTML += `<div class="bot-message">${data.response.replace(/\n/g, '<br>')}</div>`;
+                    saveChatHistory();
+                    // Scroll to new message
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }
+            })
+            .catch(error => {
+                // Remove loading indicator and show error
+                chatBody.removeChild(loadingDiv);
+                chatBody.innerHTML += `<div class="bot-message">Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.</div>`;
+                saveChatHistory();
+                chatBody.scrollTop = chatBody.scrollHeight;
+            });
+        }
+        
+        // Gửi tin nhắn khi click nút gửi
+        sendChat.addEventListener("click", sendMessage);
+        
+        // Gửi tin nhắn khi nhấn phím Enter trong input (nhưng không khi nhấn Shift+Enter)
+        chatInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault(); // Prevent default Enter behavior
+                sendMessage();
+            }
+        });
+        
+        // Auto-resize textarea based on content
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            let newHeight = this.scrollHeight;
+            // Limit max height
+            if (newHeight > 100) newHeight = 100;
+            this.style.height = newHeight + 'px';
+        });
+        
+        // Reset height when message is sent
+        sendChat.addEventListener('click', function() {
+            setTimeout(() => {
+                chatInput.style.height = 'auto';
+            }, 100);
+        });
+        
+        // Focus input when chat is opened
+        openChat.addEventListener("click", function() {
+            setTimeout(() => {
+                chatInput.focus();
+            }, 300);
+        });
+        
+        function clearChatOnLogout() {
+            localStorage.removeItem("chatHistory");
+            localStorage.removeItem("chatExpandState");
+        }
+        
+        // Gắn sự kiện xóa lịch sử chat khi người dùng bấm nút đăng xuất
+        const logoutBtn = document.querySelector("a[href='{% url 'logout' %}']");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", clearChatOnLogout);
+        }
+        
+        // Add loading dots animation
+        const style = document.createElement('style');
+        style.textContent = `
+            .loading-dots {
+                display: inline-flex;
+            }
+            .loading-dots span {
+                animation: dots 1.5s infinite;
+                font-size: 20px;
+                line-height: 10px;
+            }
+            .loading-dots span:nth-child(2) {
+                animation-delay: 0.5s;
+            }
+            .loading-dots span:nth-child(3) {
+                animation-delay: 1s;
+            }
+            @keyframes dots {
+                0%, 20% {
+                    opacity: 0;
+                    transform: translateY(0);
+                }
+                50% {
+                    opacity: 1;
+                    transform: translateY(-5px);
+                }
+                80%, 100% {
+                    opacity: 0;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>

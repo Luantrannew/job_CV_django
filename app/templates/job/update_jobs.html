@@ -1,0 +1,120 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+    <title>Update Job Data from Drive</title>
+{% endblock %}
+
+{% block content %}
+<body>
+    <div class="container mt-5">
+        <h1>Update Job Data from Drive</h1>
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <a href="https://drive.google.com/drive/u/0/folders/1hLlh5J_wRVWySJZb4dCeDwobpw5CaNNx" 
+                   target="_blank" 
+                   class="btn btn-outline-secondary" 
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="top" 
+                   title="Đi đến folder drive">
+                    <i class="bi bi-google"></i> Mở Google Drive Folder
+                </a>
+            </div>
+        </div>
+        
+        <form method="POST" id="updateForm">
+            {% csrf_token %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p class="mb-3">
+                        Nhấn nút bên dưới để tải dữ liệu job mới nhất từ Google Drive và cập nhật vào hệ thống.
+                    </p>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-cloud-download"></i> Update Data
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div id="statusMessage" class="mt-3">
+            <!-- Hiển thị trạng thái chung -->
+        </div>
+        
+        <div id="logOutput" class="mt-3 card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Logs:</h5>
+            </div>
+            <div class="card-body">
+                <ul id="logList" class="list-group list-group-flush"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('updateForm');
+        const statusMessageDiv = document.getElementById('statusMessage');
+        const logList = document.getElementById('logList');
+    
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+    
+            const formData = new FormData(form);
+    
+            // Reset giao diện
+            statusMessageDiv.innerHTML = '<div class="alert alert-info">Đang tải dữ liệu từ Google Drive và xử lý...</div>';
+            logList.innerHTML = '';
+    
+            try {
+                // Gửi yêu cầu AJAX
+                const response = await fetch("{% url 'update_jobs_from_drive' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    }
+                });
+    
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    statusMessageDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                    if (data.traceback) {
+                        const logItem = document.createElement('li');
+                        logItem.innerHTML = `
+                            <strong style="color:red">Lỗi hệ thống:</strong><br>
+                            <details>
+                                <summary><strong>Chi tiết lỗi</strong></summary>
+                                <pre style="background:#f8d7da; color:#721c24; padding:10px;">${data.traceback}</pre>
+                            </details>
+                        `;
+                        logList.appendChild(logItem);
+                    }
+                    return;
+                }
+    
+                // Hiển thị kết quả từng dòng
+                data.results.forEach(result => {
+                    const logItem = document.createElement('li');
+                    if (result.status === 'error') {
+                        logItem.innerHTML = `
+                            <strong style="color:red">Lỗi khi xử lý job:</strong> "${result.job_name}" tại công ty "${result.company_name}"<br>
+                            <strong>Chi tiết lỗi:</strong> ${result.error}<br>
+                            <details>
+                                <summary><strong>Traceback (chi tiết lỗi)</strong></summary>
+                                <pre style="background:#f8d7da; color:#721c24; padding:10px;">${result.traceback}</pre>
+                            </details>
+                        `;
+                    } else {
+                        logItem.innerHTML = `<strong style="color:green">Đã xử lý job:</strong> "${result.job_name}" tại công ty "${result.company_name}" - ${result.created ? "Tạo mới" : "Đã tồn tại"}`;
+                    }
+                    logList.appendChild(logItem);
+                });
+    
+                statusMessageDiv.innerHTML = '<div class="alert alert-success">Cập nhật dữ liệu hoàn tất.</div>';
+            } catch (err) {
+                statusMessageDiv.innerHTML = `<div class="alert alert-danger">Có lỗi xảy ra: ${err.message}</div>`;
+            }
+        });
+    </script>
+</body>
+{% endblock %}

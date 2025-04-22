@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load sidebar_tags %}
+
+    {% block title %}
+
+
+    <title>DUE việc làm</title>
+    <link rel="icon" type="image/png" href="{% static 'images/logo_ecom3.png' %}" width="32px"
+    {% endblock %}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- cắt và kéo ảnh avatar -->
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+
+    <!-- Nối link css -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+
+  
+    
+</head>
+
+
+
+
+<body>
+
+    <style>
+        /* Thiết kế cho menu items */
+        .sidebar-nav li a {
+            color: #fff;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-radius: 4px;
+            margin: 4px 8px;
+        }
+        
+        .sidebar-nav li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Định dạng dropdown */
+        .sidebar-nav .dropdown-menu {
+            background-color: #16183e !important;
+            border: none;
+            border-radius: 4px;
+            padding: 0;
+            margin-top: 0;
+            width: 90%;
+            margin-left: 5%;
+        }
+        
+        .sidebar-nav .dropdown-item {
+            color: #ddd !important;
+            padding: 10px 15px 10px 25px;
+            border-radius: 4px;
+            margin: 4px 8px;
+        }
+        
+        .sidebar-nav .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+        }
+
+        .search-box {
+            min-width: 240px;
+            border-radius: 20px 0 0 20px;
+            border-right: none;
+            padding-left: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            min-width: 280px;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            border-color: #86b7fe;
+        }
+
+        /* Nút tìm kiếm */
+        #searchForm button {
+            border-radius: 0 20px 20px 0;
+            border-left: none;
+        }
+
+        #searchForm button:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        /* Search results dropdown */
+        #searchResults {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Logo area */
+        /* .sidebar-header {
+            padding: 20px 0;
+            text-align: center;
+        } */
+        
+        /* Icon SVG styling */
+        /* .sidebar-nav li a svg {
+            margin-right: 10px;
+        } */
+        
+        /* Active state */
+        /* .sidebar-nav li a.active {
+            background-color: rgba(255, 255, 255, 0.15);
+        } */
+    </style>
+    <header class="p-3 mb-3 border-bottom bg-white " 
+            style=" height: 69px; 
+                    width: 100%;
+                    position: sticky ; 
+                    top: 0; 
+                    z-index: 1000;
+                    ">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <div class="d-flex align-items-center ms-auto" >
+                <form id="searchForm" class="me-3" method="GET" action="{% url 'search_results' %}">
+                    <div class="input-group">
+                        <input type="search" 
+                               name="q" 
+                               class="form-control search-box" 
+                               placeholder="Tìm kiếm..." 
+                               aria-label="Search"
+                               id="searchInput">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+                <div id="searchResults"></div>
+
+
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            
+                            
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"  style="width: 24px; height: 24px; margin-right: 10px;">
+                                <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                            </svg>
+                            {{ user.student_profile.name }}
+                        </a>
+                        <ul class="dropdown-menu text-small dropdown-menu-end" aria-labelledby="dropdownUser1" style="margin-top: 0.5rem;">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile' %}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 24px; height: 24px; margin-right: 10px;">
+                                        <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
+                                      </svg>
+                                    Chỉnh sửa hồ sơ
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'logout' %}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  style="width: 24px; height: 24px; margin-right: 10px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25a2.25 2.25 0 0 0-2.25-2.25h-6a2.25 2.25 0 0 0-2.25 2.25V18.75a2.25 2.25 0 0 0 2.25-2.25V15M18.75 12h-9" />
+                                    </svg>
+                                    Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'sign_in' %}" class="btn btn-outline-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6" style="width: 24px; height: 24px; margin-right: 10px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25a2.25 2.25 0 0 0-2.25-2.25h-6a2.25 2.25 0 0 0-2.25 2.25V18.75a2.25 2.25 0 0 0 2.25 2.25h6a2.25 2.25 0 0 0 2.25-2.25V15M18.75 12h-9" />
+                        </svg>
+                        Đăng nhập
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div class="overlay"></div>
+
+        <!-- Sidebar -->
+        <nav class="navbar navbar-inverse fixed-top" id="sidebar-wrapper" role="navigation">
+            <ul class="nav sidebar-nav">
+                <div class="sidebar-header">
+                    <div class="sidebar-brand">
+                        <a href="{% url 'index' %}">
+                            <img src="{% static 'images/logo_ecom3.png' %}" alt="logo_ecom" style="width:100px">
+                        </a>
+                    </div>
+                </div>
+                <br><br><br>
+                {% if user|is_admin %}
+                <!-- Dropdown cho Sinh viên -->
+                <li class="nav-item">
+                    <a class="nav-link dropdown-toggle" href="#studentDropdown" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 24px; height: 24px;">
+                            <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.949 49.949 0 00-9.902 3.912l-.003.002-.34.18a.75.75 0 01-.707 0A50.009 50.009 0 007.5 12.174v-.224c0-.131.067-.248.172-.311a54.614 54.614 0 014.653-2.52.75.75 0 00-.65-1.352 56.129 56.129 0 00-4.78 2.589 1.858 1.858 0 00-.859 1.228 49.803 49.803 0 00-4.634-1.527.75.75 0 01-.231-1.337A60.653 60.653 0 0111.7 2.805z" />
+                            <path d="M13.06 15.473a48.45 48.45 0 017.666-3.282c.134 1.414.22 2.843.255 4.285a.75.75 0 01-.46.71 47.878 47.878 0 00-8.105 4.342.75.75 0 01-.832 0 47.877 47.877 0 00-8.104-4.342.75.75 0 01-.461-.71c.035-1.442.121-2.87.255-4.286A48.4 48.4 0 016 13.18v1.27a1.5 1.5 0 00-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.661a6.729 6.729 0 00.551-1.608 1.5 1.5 0 00.14-2.67v-.645a48.549 48.549 0 013.44 1.668 2.25 2.25 0 002.12 0z" />
+                        </svg>
+                        Quản lý sinh viên
+                    </a>
+                    <div class="collapse" id="studentDropdown">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'studentForm' %}">
+                                    Đăng ký sinh viên
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'update_from_gsheet' %}">
+                                    Nhập dữ liệu sinh viên
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'student_management' %}">
+                                    Danh sách sinh viên
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+        
+                <!-- Dropdown quản lý việc làm -->
+                <li class="nav-item">
+                    <a class="nav-link dropdown-toggle" href="#jobDropdown" role="button" data-bs-toggle="collapse" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 24px; height: 24px;">
+                            <path fill-rule="evenodd" d="M7.5 5.25a3 3 0 013-3h3a3 3 0 013 3v.205c.933.085 1.857.197 2.774.334 1.454.218 2.476 1.483 2.476 2.917v3.033c0 1.211-.734 2.352-1.936 2.752A24.726 24.726 0 0112 15.75c-2.73 0-5.357-.442-7.814-1.259-1.202-.4-1.936-1.541-1.936-2.752V8.706c0-1.434 1.022-2.7 2.476-2.917A48.814 48.814 0 017.5 5.455V5.25zm7.5 0v.09a49.488 49.488 0 00-6 0v-.09a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5zm-3 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                            <path d="M3 18.4v-2.796a4.3 4.3 0 00.713.31A26.226 26.226 0 0012 17.25c2.892 0 5.68-.468 8.287-1.335.252-.084.49-.189.713-.311V18.4c0 1.452-1.047 2.728-2.523 2.923-2.12.282-4.282.427-6.477.427a49.19 49.19 0 01-6.477-.427C4.047 21.128 3 19.852 3 18.4z" />
+                        </svg>
+                        Quản lý việc làm
+                    </a>
+                    <div class="collapse" id="jobDropdown">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'update_jobs_from_drive' %}">
+                                    Nhập dữ liệu việc làm
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="dropdown-item" href="{% url 'job_list' %}">
+                                    Danh sách việc làm
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                
+
+                <li>
+                    <a href="{% url 'chat_dashboard' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6" style="width: 24px; height: 24px; margin-right: 10px;">
+                            <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.984L7.28 21.53A.75.75 0 0 1 6 21v-4.03a48.527 48.527 0 0 1-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979Z"/>
+                            <path d="M15.75 7.5c-1.376 0-2.739.057-4.086.169C10.124 7.797 9 9.103 9 10.609v4.285c0 1.507 1.128 2.814 2.67 2.94 1.243.102 2.5.157 3.768.165l2.782 2.781a.75.75 0 0 0 1.28-.53v-2.39l.33-.026c1.542-.125 2.67-1.433 2.67-2.94v-4.286c0-1.505-1.125-2.811-2.664-2.94A49.392 49.392 0 0 0 15.75 7.5Z"/>
+                        </svg>
+                        Kênh chat
+                    </a>
+                </li>
+                {% else %}  
+                <!-- else của logic tìm admin -->
+                    <li>
+                        <a href="{% url 'cv_list' %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6" style="width: 24px; height: 24px; margin-right: 10px;">
+                                <path fill-rule="evenodd" d="M7.502 6h7.128A3.375 3.375 0 0 1 18 9.375v9.375a3 3 0 0 0 3-3V6.108c0-1.505-1.125-2.811-2.664-2.94a48.972 48.972 0 0 0-.673-.05A3 3 0 0 0 15 1.5h-1.5a3 3 0 0 0-2.663 1.618c-.225.015-.45.032-.673.05C8.662 3.295 7.554 4.542 7.502 6ZM13.5 3A1.5 1.5 0 0 0 12 4.5h4.5A1.5 1.5 0 0 0 15 3h-1.5Z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M3 9.375C3 8.339 3.84 7.5 4.875 7.5h9.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V9.375ZM6 12a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H6.75a.75.75 0 0 1-.75-.75V12Zm2.25 0a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75ZM6 15a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H6.75a.75.75 0 0 1-.75-.75V15Zm2.25 0a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75ZM6 18a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H6.75a.75.75 0 0 1-.75-.75V18Zm2.25 0a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+                            </svg>
+                            Danh sách CV
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{% url 'cv-form' %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6" style="width: 24px; height: 24px; margin-right: 10px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+                            </svg>
+                            Tạo CV mới
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'job_list' %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6" style="width: 24px; height: 24px; margin-right: 10px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.625 6.75a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Zm4.875 0A.75.75 0 0 1 8.25 6h12a.75.75 0 0 1 0 1.5h-12a.75.75 0 0 1-.75-.75ZM2.625 12a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0ZM7.5 12a.75.75 0 0 1 .75-.75h12a.75.75 0 0 1 0 1.5h-12A.75.75 0 0 1 7.5 12Zm-4.875 5.25a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Zm4.875 0a.75.75 0 0 1 .75-.75h12a.75.75 0 0 1 0 1.5h-12a.75.75 0 0 1-.75-.75Z" />
+                            </svg>
+                            Danh sách việc làm
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'chat_dashboard' %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6" style="width: 24px; height: 24px; margin-right: 10px;">
+                                <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.984L7.28 21.53A.75.75 0 0 1 6 21v-4.03a48.527 48.527 0 0 1-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979Z"/>
+                                <path d="M15.75 7.5c-1.376 0-2.739.057-4.086.169C10.124 7.797 9 9.103 9 10.609v4.285c0 1.507 1.128 2.814 2.67 2.94 1.243.102 2.5.157 3.768.165l2.782 2.781a.75.75 0 0 0 1.28-.53v-2.39l.33-.026c1.542-.125 2.67-1.433 2.67-2.94v-4.286c0-1.505-1.125-2.811-2.664-2.94A49.392 49.392 0 0 0 15.75 7.5Z"/>
+                            </svg>
+                            Kênh chat
+                        </a>
+                    </li>
+
+            {% endif %}
+
+                    <!-- endif của logic tìm admin -->
+                     
+                
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <button type="button" 
+                    class="hamburger animated fadeInLeft is-closed" 
+                    data-toggle="offcanvas" 
+                    style=" z-index: 2000;">
+                <span class="hamb-top"></span>
+                <span class="hamb-middle"></span>
+                <span class="hamb-bottom"></span>
+            </button>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        {% block content %}
+                        <!-- Nội dung chính -->
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    {% block chatbot %}
+        {% include "chatbot_gemini.html" %}
+    {% endblock %}
+
+    {% block extra_js %}
+    <script>
+        $(document).ready(function () {
+          var trigger = $('.hamburger'),
+              overlay = $('.overlay'),
+              isClosed = false;
+      
+          trigger.click(function () {
+            hamburger_cross();      
+          });
+      
+          function hamburger_cross() {
+            if (isClosed == true) {          
+              overlay.hide();
+              trigger.removeClass('is-open');
+              trigger.addClass('is-closed');
+              isClosed = false;
+            } else {   
+              overlay.show();
+              trigger.removeClass('is-closed');
+              trigger.addClass('is-open');
+              isClosed = true;
+            }
+          }
+      
+          $('[data-toggle="offcanvas"]').click(function () {
+                $('#wrapper').toggleClass('toggled');
+          });  
+        });
+        document.addEventListener("DOMContentLoaded", function() {
+            // Xác định trang hiện tại và thêm class active
+            const currentPage = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+            
+            navLinks.forEach(link => {
+                const linkPath = new URL(link.href, window.location.origin).pathname;
+                
+                if (currentPage === linkPath) {
+                    link.classList.add('active');
+                    
+                    // Nếu link thuộc dropdown, mở dropdown đó
+                    const dropdownParent = link.closest('.collapse');
+                    if (dropdownParent) {
+                        dropdownParent.classList.add('show');
+                        const toggle = document.querySelector(`[href="#${dropdownParent.id}"]`);
+                        if (toggle) toggle.setAttribute('aria-expanded', 'true');
+                    }
+                }
+            });
+        });
+
+
+        // Tìm kiếm
+        $(document).ready(function() {
+        let searchTimeout;
+        const searchInput = $('#searchInput');
+        
+        // Xử lý gõ vào ô tìm kiếm
+        searchInput.on('input', function() {
+            const query = $(this).val();
+            
+            // Clear timeout trước đó
+            clearTimeout(searchTimeout);
+            
+            // Nếu query ít hơn 2 ký tự, ẩn kết quả
+            if (query.length < 2) {
+                $('#searchResults').hide();
+                return;
+            }
+            
+            // Đặt timeout mới (300ms)
+            searchTimeout = setTimeout(function() {
+                // Gửi AJAX request
+                $.ajax({
+                    url: '/api/search/',  // Endpoint API tìm kiếm
+                    data: {
+                        'q': query
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Hiển thị kết quả
+                        displayResults(data, query);
+                    }
+                });
+            }, 300);
+        });
+        
+        // Ẩn kết quả khi click ra ngoài
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#searchForm, #searchResults').length) {
+                $('#searchResults').hide();
+            }
+        });
+        
+        // Hiển thị kết quả tìm kiếm
+        function displayResults(data, query) {
+            const resultsContainer = $('#searchResults');
+            resultsContainer.empty();
+            
+            if (data.jobs && data.jobs.length > 0) {
+                resultsContainer.append('<h6 class="px-3 pt-2">Việc làm</h6>');
+                
+                $.each(data.jobs, function(i, job) {
+                    resultsContainer.append(`
+                        <div class="search-result-item" onclick="window.location.href='/jobs/${job.id}'">
+                            <strong>${job.title}</strong>
+                            <div class="small text-muted">${job.company}</div>
+                        </div>
+                    `);
+                });
+            }
+            
+            if (data.students && data.students.length > 0) {
+                resultsContainer.append('<h6 class="px-3 pt-2 mt-2">Sinh viên</h6>');
+                
+                $.each(data.students, function(i, student) {
+                    resultsContainer.append(`
+                        <div class="search-result-item" onclick="window.location.href='/students/${student.id}'">
+                            <strong>${student.name}</strong>
+                            <div class="small text-muted">${student.email}</div>
+                        </div>
+                    `);
+                });
+            }
+            
+            // Hiển thị thông báo nếu không có kết quả
+            if ((!data.jobs || data.jobs.length === 0) && (!data.students || data.students.length === 0)) {
+                resultsContainer.append(`
+                    <div class="p-3 text-center">
+                        Không tìm thấy kết quả nào cho "${query}"
+                    </div>
+                `);
+            }
+            
+            // Thêm nút tìm kiếm đầy đủ
+            resultsContainer.append(`
+                <div class="p-2 text-center border-top">
+                    <a href="/search?q=${encodeURIComponent(query)}" class="btn btn-sm btn-primary">
+                        Xem tất cả kết quả
+                    </a>
+                </div>
+            `);
+            
+            resultsContainer.show();
+        }
+    });
+      </script>
+
+    {% endblock %}
+</body>
+</html>

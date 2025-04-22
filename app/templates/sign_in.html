@@ -1,0 +1,347 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - E-commerce Portal</title>
+
+    <!-- Cropper.js -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+
+    <!-- Nối link css -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f0f0f5 0%, #ffffff 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .login-container {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 550px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-image {
+            background: linear-gradient(135deg, #1b1d4d 0%, #3a3d8c 100%);
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 40px;
+            position: relative;
+        }
+        
+        .login-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.2;
+        }
+        
+        .login-image h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .login-image p {
+            font-size: 1.1rem;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .features {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .feature-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .feature-text {
+            font-size: 1rem;
+        }
+        
+        .login-form {
+            width: 50%;
+            background-color: white;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-form h1 {
+            color: #1b1d4d;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .input-group i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 15px;
+            color: #1b1d4d;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid #e1e1e1;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #1b1d4d;
+            box-shadow: 0 0 0 3px rgba(27, 29, 77, 0.1);
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #1b1d4d 0%, #3a3d8c 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(27, 29, 77, 0.2);
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(27, 29, 77, 0.3);
+        }
+        
+        .login-btn i {
+            margin-right: 10px;
+        }
+        
+        .error-message {
+            background-color: #ffebee;
+            color: #d32f2f;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .error-message i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .return-home {
+            text-align: center;
+            margin-top: 25px;
+            color: #1b1d4d;
+            font-weight: 600;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+        }
+        
+        .return-home:hover {
+            color: #3a3d8c;
+        }
+        
+        .return-home i {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 450px;
+            }
+            
+            .login-image, .login-form {
+                width: 100%;
+            }
+            
+            .login-image {
+                padding: 30px;
+                min-height: 300px;
+            }
+            
+            .login-form {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-image">
+            <h2>E-commerce Portal</h2>
+            <p>Nền tảng kết nối sinh viên khoa E-commerce với cơ hội việc làm phù hợp</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="feature-text">Gợi ý công việc phù hợp</div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="feature-text">Trợ lý ảo thông minh</div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="feature-text">Kết nối doanh nghiệp</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="login-form">
+            <h1>Đăng nhập</h1>
+            
+            <form id="loginForm">
+                {% csrf_token %}
+                
+                <div class="input-group">
+                    <i class="fas fa-user-graduate"></i>
+                    <input type="text" id="username" name="username" placeholder="Mã sinh viên" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Mật khẩu" required>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </button>
+                
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+            </form>
+            
+            <a href="{% url 'index' %}" class="return-home">
+                <i class="fas fa-home"></i> Quay lại trang chủ
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Ngăn tải lại trang
+
+            const formData = new FormData(this); // Lấy dữ liệu từ form
+            const csrfToken = formData.get('csrfmiddlewaretoken'); // Lấy CSRF token
+
+            try {
+                const response = await fetch("{% url 'sign_in' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Đăng nhập thành công, chuyển hướng
+                    window.location.href = "{% url 'index' %}";
+                } else {
+                    // Hiển thị thông báo lỗi
+                    const errorMessage = document.getElementById('errorMessage');
+                    const errorText = document.getElementById('errorText');
+                    errorMessage.style.display = 'flex';
+                    errorText.textContent = data.message || 'Đăng nhập không thành công. Vui lòng thử lại.';
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+                const errorMessage = document.getElementById('errorMessage');
+                const errorText = document.getElementById('errorText');
+                errorMessage.style.display = 'flex';
+                errorText.textContent = 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+            }
+        });
+    </script>
+</body>
+</html>

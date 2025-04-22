@@ -1,0 +1,358 @@
+{% extends "base_generic.html" %}
+{% load custom_filters %}
+{% load static %}
+{% block title %}
+    <title>Curriculum Vitae - {{ cv.name }}</title>
+    <link rel="icon" type="image/png" href="{% static 'images/logo_ecom2.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+        
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            display: none;
+            transition: all 0.3s ease;
+        }
+    
+        
+        @media (max-width: 768px) {
+            .profile-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .cv-name {
+                font-size: 2rem;
+            }
+            
+            .date {
+                float: none;
+                display: block;
+                margin-top: 5px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        } 
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-container">
+        <div class="action-buttons">
+            <a href="{% url 'generate_cv_pdf' cv.pk %}" class="btn btn-secondary">
+                <i class="fas fa-download"></i> Tải CV
+            </a>
+            <a href="#" id="compare-job-btn" class="btn btn-info">
+                <i class="fas fa-balance-scale"></i> So sánh công việc với CV
+            </a>
+            <a href="#" id="recommended-jobs-btn" class="btn btn-success">
+                <i class="fas fa-briefcase"></i> Gợi ý công việc theo CV của bạn
+            </a>
+        </div>
+        
+        <div id="compare-job-form" class="form-container">
+            <h4><i class="fas fa-search"></i> So sánh CV với mô tả công việc bạn ứng tuyển</h4>
+            <p class="text-muted" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Công cụ này chỉ hoạt động với mô tả công việc có cùng ngôn ngữ với CV của bạn</p>
+            <form id="jd-form" method="POST">
+                {% csrf_token %}
+                <textarea name="job_description" rows="4" class="form-control" placeholder="Nhập mô tả công việc (JD) ở đây..."></textarea>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> So sánh
+                </button>
+            </form>
+            <div id="comparison-result" class="comparison-result" style="display: none;"></div>
+        </div>
+
+        <div class="cv-detail-section">
+            <!-- Profile Section -->
+            <div class="section">
+                <section class="text-center mb-4">
+                    <div class="profile-section">
+                        {% if cv.avatar %}
+                            <img src="{{ cv.avatar.url }}" alt="Avatar" class="profile-picture">
+                        {% else %}
+                            <img src="{% static 'images/logo_ecom2.png' %}" alt="Default Avatar" class="profile-picture">
+                        {% endif %}
+                        <div class="profile-details">
+                            <h2 class="cv-name">{{ cv.student.name }}</h2>
+                            <div class="contact-info mb-3">
+                                <p><i class="fas fa-phone"></i> <a class="text-decoration-none">+84 - {{ cv.student.phone }}</a></p>
+                                <p><i class="fas fa-envelope"></i> <a class="text-decoration-none">{{ cv.student.email }}</a></p>
+                            </div>
+                            <div class="social-links d-flex justify-content-center flex-wrap">
+                                {% for link in social_links %}
+                                    <a href="{{ link.link }}" target="_blank" class="social-link">
+                                        <i class="{{ link.icon_class }}"></i> 
+                                        {{ link.displayname_set.first.display_name }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- About Me Section -->
+            {% if cv.about_me %}
+            <section class="mb-4">
+                <div class="section">
+                    <h4 class="section-header">About Me</h4>
+                    <p>{{ cv.about_me }}</p>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Experience Section -->
+            {% if experiences %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Professional Experience</div>
+                    {% for experience in experiences %}
+                    <div class="job-entry">
+                        <div class="job-title">{{ experience.experience.role }},</div>
+                        <a href="#" class="company-link">({{ experience.experience.company_name }})</a>
+                        <span class="date">
+                            {{ experience.experience.start_date|date:"d/m/Y" }} - 
+                            {% if experience.experience.end_date %}
+                                {{ experience.experience.end_date|date:"d/m/Y" }}
+                            {% else %}
+                                Present
+                            {% endif %}
+                        </span>
+                        <ul class="responsibilities">
+                            {% for context_item in experience.experience.context.splitlines %}
+                            <div>{{ context_item|trim_leading_dot }}</div>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Certifications Section -->
+            {% if certifications %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Certifications</div>
+                    <ul class="list-group list-group-flush">
+                        {% for cert in certifications %}
+                            <li class="list-group-item">
+                                <i class="fas fa-certificate" style="color: #1b1d4d; margin-right: 8px;"></i>
+                                {{ cert.certificate }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Skills Section -->
+            {% if skills %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Skills</div>
+                    <div class="card mt-4">
+                        <div class="card-body ma">
+                            {% for skill in skills %}
+                            <span class="badge bg-success text-white p-2">{{ skill.skill.skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Languages Section -->
+            {% if languages %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Languages</div>
+                    <ul>
+                        {% for lang in languages %}
+                            <li class="list-group-item">
+                                <i class="fas fa-language" style="color: #1b1d4d; margin-right: 8px;"></i>
+                                <strong>{{ lang.language.language }}</strong>
+                                <p class="m-0 text-muted">{{ lang.language.text }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Projects Section -->
+            {% if projects %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Projects</div>
+                    {% for project in projects %}
+                        <div class="mb-3 job-entry">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-project-diagram" style="color: #1b1d4d; margin-right: 8px;"></i>
+                                {{ project.project_name }}
+                            </h5>
+                            <ul class="responsibilities">
+                                {% for content_item in project.project_content.splitlines %}
+                                <div>
+                                    {{ content_item|trim_leading_dot }}
+                                </div>
+                                {% endfor %}
+                                {% if project.project_link_set.exists %}
+                                <div>
+                                    <a href="{{ project.project_link_set.first.link }}" target="_blank" class="text-decoration-none text-primary">
+                                        <i class="fas fa-external-link-alt"></i> Project Link
+                                    </a>
+                                </div>   
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        </div>
+        
+        <div id="recommended-jobs-container"></div>
+    </div>
+
+    <a href="#" id="recommended-jobs-info" hidden></a>
+    
+    <!-- Back to top button -->
+    <div id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Show/hide back to top button based on scroll position
+        window.addEventListener('scroll', function() {
+            const backToTopButton = document.getElementById('back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        });
+        
+        // Scroll to top when button is clicked
+        document.getElementById('back-to-top').addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    
+        // Recommended jobs functionality
+        document.getElementById("recommended-jobs-btn").addEventListener("click", function (event) {
+            event.preventDefault();
+            
+            // Add loading indicator
+            const jobsContainer = document.getElementById("recommended-jobs-container");
+            jobsContainer.innerHTML = '<div class="text-center my-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-3">Đang tải công việc phù hợp...</p></div>';
+            
+            fetch("{% url 'recommended_jobs_by_cv' cv.pk %}", {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
+            .then((response) => response.text())
+            .then((html) => {
+                document.getElementById("recommended-jobs-container").innerHTML = html;
+                document.getElementById("recommended-jobs-info").classList.remove("d-none");
+
+                // Cuộn xuống phần danh sách công việc
+                document.getElementById("recommended-jobs-container").scrollIntoView({ behavior: "smooth", block: "start" });
+            })
+            .catch((error) => {
+                console.error("Error fetching jobs:", error);
+                document.getElementById("recommended-jobs-container").innerHTML = 
+                    '<div class="alert alert-danger">Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.</div>';
+            });
+        });
+
+        // Hiển thị form nhập JD khi bấm vào nút so sánh
+        document.getElementById("compare-job-btn").addEventListener("click", function (event) {
+            event.preventDefault();
+            const form = document.getElementById("compare-job-form");
+            
+            if (form.style.display === "block") {
+                form.style.display = "none";
+            } else {
+                form.style.display = "block";
+            }
+        });
+
+        // Xử lý form so sánh công việc và CV
+        document.getElementById("jd-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            
+            // Show loading indicator
+            document.getElementById("comparison-result").innerHTML = 
+                '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang phân tích...</div>';
+            document.getElementById("comparison-result").style.display = "block";
+
+            const jobDescription = document.querySelector('textarea[name="job_description"]').value;
+            
+            fetch("{% url 'compare_cv_with_job' cv.pk %}", {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]').value
+                },
+                body: JSON.stringify({ job_description: jobDescription })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let similarityClass = "text-danger";
+                if (data.similarity >= 70) {
+                    similarityClass = "text-success";
+                } else if (data.similarity >= 50) {
+                    similarityClass = "text-warning";
+                }
+                
+                document.getElementById("comparison-result").innerHTML = `
+                    <h5><i class="fas fa-chart-pie"></i> Kết quả so sánh:</h5>
+                    <p>Độ tương đồng: <span class="${similarityClass} fw-bold">${data.similarity.toFixed(2)}%</span></p>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-${data.similarity >= 70 ? 'success' : data.similarity >= 50 ? 'warning' : 'danger'}" 
+                             role="progressbar" 
+                             style="width: ${data.similarity}%;" 
+                             aria-valuenow="${data.similarity}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                             ${data.similarity.toFixed(2)}%
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error("Error comparing CV with job:", error);
+                document.getElementById("comparison-result").innerHTML = 
+                    '<div class="alert alert-danger">Có lỗi xảy ra khi so sánh. Vui lòng thử lại sau.</div>';
+            });
+        });
+    </script>
+{% endblock %}

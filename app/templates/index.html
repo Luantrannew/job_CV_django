@@ -1,0 +1,328 @@
+{% extends "base_generic.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #1b1d4d 0%, #3a3d8c 100%);
+        color: white;
+        padding: 60px 0;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(27, 29, 77, 0.2);
+        margin-bottom: 40px;
+    }
+    
+    .feature-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-icon {
+        font-size: 36px;
+        margin-bottom: 15px;
+        color: #1b1d4d;
+    }
+    
+    .feature-card .card-body {
+        padding: 30px;
+    }
+    
+    .feature-card .card-title {
+        color: #1b1d4d;
+        font-weight: 700;
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+        border-bottom: 2px solid #f0f0f5;
+        padding-bottom: 15px;
+    }
+    
+    .feature-card ul {
+        padding-left: 1.5rem;
+    }
+    
+    .feature-card ul li {
+        margin-bottom: 12px;
+        position: relative;
+        line-height: 1.6;
+    }
+    
+    .cta-button {
+        padding: 12px 24px;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin: 20px 0 10px;
+    }
+    
+    .btn-primary {
+        background-color: #1b1d4d;
+        border-color: #1b1d4d;
+    }
+    
+    .btn-primary:hover {
+        background-color: #3a3d8c;
+        border-color: #3a3d8c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(27, 29, 77, 0.2);
+    }
+    
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(40, 167, 69, 0.2);
+    }
+    
+    .btn-warning {
+        background-color: #ff9800;
+        border-color: #ff9800;
+        color: white;
+    }
+    
+    .btn-warning:hover {
+        background-color: #e68a00;
+        border-color: #e68a00;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(255, 152, 0, 0.2);
+    }
+    
+    .welcome-user {
+        background: linear-gradient(135deg, #f0f0f5 0%, #ffffff 100%);
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+    
+    .welcome-user h2 {
+        color: #1b1d4d;
+        font-weight: 700;
+    }
+    
+    .support-section {
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        padding: 30px;
+        margin-top: 40px;
+        border-left: 5px solid #ff9800;
+    }
+    
+    .stat-card {
+        background-color: #1b1d4d;
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(27, 29, 77, 0.2);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        opacity: 0.8;
+    }
+    
+    .benefit-icon {
+        width: 60px;
+        height: 60px;
+        background-color: #f0f0f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        font-size: 24px;
+        color: #1b1d4d;
+    }
+</style>
+
+{% if user.is_authenticated %}
+    <div class="container mt-5">
+        <div class="welcome-user">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2><i class="fas fa-award"></i> Chào mừng, {{ user.student_profile.name }}!</h2>
+                    <p class="lead mt-3">Chúng tôi rất vui khi được đồng hành cùng bạn trên hành trình phát triển nghề nghiệp. Khám phá các công cụ và cơ hội dành riêng cho bạn.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <!-- <img src="{% static 'images/logo_ecom3.png' %}" alt="Welcome" class="img-fluid" style="max-height: 150px;"> -->
+                    <!-- <img src="{% static 'images/logo_ecom3.png' %}" alt="logo_ecom" style="width:150px"> -->
+                     
+                    
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-number">5+</div>
+                        <div class="stat-label">Công cụ AI hỗ trợ</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">Cơ hội việc làm mới</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Hỗ trợ từ đội ngũ chuyên gia</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="support-section mt-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4><i class="fas fa-headset"></i> Cần trợ giúp thêm?</h4>
+                        <p>Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc và hỗ trợ bạn trong quá trình tìm kiếm việc làm.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <a href="{% url 'chat_with_admin' %}" class="btn btn-warning cta-button"><i class="fas fa-comment-dots"></i> Liên hệ Admin</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="container mt-5">
+        <div class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h1 class="display-4 fw-bold mb-4" style="margin-left: 40px;">Khởi đầu sự nghiệp cùng E-commerce Portal</h1>
+                        <p class="lead mb-4" style="margin-left: 20px;">Nền tảng kết nối sinh viên khoa E-commerce với cơ hội việc làm phù hợp, được hỗ trợ bởi công nghệ AI tiên tiến.</p>
+                        <a href="{% url 'sign_in' %}" class="btn btn-light cta-button btn-lg" style="margin-left: 20px;"><i class="fas fa-sign-in-alt"></i> Đăng nhập ngay</a>
+                    </div> 
+                    <div class="col-lg-5 d-none d-lg-block text-center">
+                        <img src="{% static 'images/logo_ecom2.png' %}" alt="E-commerce Job Portal" class="img-fluid" style="max-height: 300px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card card">
+                    <div class="card-body text-center">
+                        <div class="benefit-icon mx-auto">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h5>Gợi ý công việc phù hợp</h5>
+                        <p>AI phân tích CV và đề xuất công việc phù hợp với kỹ năng và mục tiêu nghề nghiệp của bạn.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card card">
+                    <div class="card-body text-center">
+                        <div class="benefit-icon mx-auto">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h5>Trợ lý ảo thông minh</h5>
+                        <p>Gemini AI hỗ trợ viết CV, chuẩn bị phỏng vấn và tư vấn phát triển kỹ năng.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card card">
+                    <div class="card-body text-center">
+                        <div class="benefit-icon mx-auto">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5>Kết nối doanh nghiệp</h5>
+                        <p>Tiếp cận trực tiếp với các công ty và nhà tuyển dụng đang tìm kiếm tài năng trẻ.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Hướng dẫn bên trái -->
+            <div class="col-md-6 mb-4">
+                <div class="feature-card card">
+                    <div class="card-body">
+                        <div class="feature-icon text-center">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h3 class="card-title text-center">Dành cho Sinh Viên</h3>
+                        <ul>
+                            <li><strong>Đăng nhập:</strong> Sử dụng mã sinh viên và mật khẩu để truy cập hệ thống.</li>
+                            <li><strong>Tạo CV chuyên nghiệp:</strong> Xây dựng hồ sơ nổi bật với công cụ tạo CV trực quan.</li>
+                            <li><strong>Gợi ý thông minh:</strong> Nhận đề xuất việc làm phù hợp với ngành học và kỹ năng.</li>
+                            <li><strong>Trợ lý ảo Gemini:</strong> Tận dụng công nghệ AI của Google để hoàn thiện hồ sơ.</li>
+                            <li><strong>Tương tác trực tiếp:</strong> Chat với admin hoặc sử dụng chatbot hỗ trợ 24/7.</li>
+                        </ul>
+                        <div class="text-center">
+                            <a href="{% url 'sign_in' %}" class="btn btn-primary cta-button"><i class="fas fa-graduation-cap"></i> Khám phá ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hướng dẫn bên phải -->
+            <div class="col-md-6 mb-4">
+                <div class="feature-card card">
+                    <div class="card-body">
+                        <div class="feature-icon text-center">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3 class="card-title text-center">Dành cho Quản Trị Viên</h3>
+                        <ul>
+                            <li><strong>Quản lý việc làm hiệu quả:</strong> Hệ thống tối ưu để thêm, cập nhật và theo dõi vị trí tuyển dụng.</li>
+                            <li><strong>Tìm kiếm ứng viên tiềm năng:</strong> Công cụ lọc thông minh giúp tìm kiếm sinh viên phù hợp.</li>
+                            <li><strong>Phân tích dữ liệu:</strong> Biểu đồ và báo cáo trực quan về tỷ lệ ứng tuyển và đánh giá ứng viên.</li>
+                            <li><strong>Hỗ trợ đa nền tảng:</strong> Tương tác với sinh viên qua hệ thống chat hoặc chatbot thông minh.</li>
+                            <li><strong>Tích hợp AI:</strong> Công nghệ AI phân tích CV và đánh giá mức độ phù hợp của ứng viên.</li>
+                        </ul>
+                        <div class="text-center">
+                            <a href="{% url 'sign_in' %}" class="btn btn-success cta-button"><i class="fas fa-chart-line"></i> Bắt đầu quản lý</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần dưới: Thông tin thêm -->
+        <div class="support-section">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4><i class="fas fa-headset"></i> Cần trợ giúp thêm?</h4>
+                    <p>Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc và hướng dẫn bạn sử dụng hệ thống.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <a href="{% url 'chat_with_admin' %}" class="btn btn-warning cta-button"><i class="fas fa-comment-dots"></i> Liên hệ Admin</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

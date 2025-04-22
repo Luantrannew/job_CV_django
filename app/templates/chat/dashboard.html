@@ -1,0 +1,693 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* CSS Variables for consistent colors */
+:root {
+    --primary-color: #1b1d4d;
+    --primary-light: #4d508f;
+    --secondary-color: #e0e3f5;
+    --background-light: #f9fafc;
+    --background-lighter: #f5f6fa;
+    --text-dark: #1b1d4d;
+    --text-medium: #6c757d;
+    --text-light: #666;
+    --white: #ffffff;
+    --admin-green: #4caf50;
+    --user-blue: #2196f3;
+    --bot-color: #1b1d4d;
+    --shadow-color: rgba(27, 29, 77, 0.1);
+}
+
+/* Reset and Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    line-height: 1.5;
+    color: var(--text-dark);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Main Container Layout */
+.chat-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+.inbox-container {
+    display: flex;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    overflow: hidden;
+    height: 650px;
+    border: 1px solid var(--secondary-color);
+}
+
+/* Sidebar Section */
+.chat-sidebar {
+    width: 320px;
+    background: var(--white);
+    border-right: 1px solid var(--secondary-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--secondary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    color: var(--white);
+}
+
+.sidebar-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-title i {
+    margin-right: 10px;
+}
+
+/* Search Section */
+.search-container {
+    padding: 15px;
+    border-bottom: 1px solid var(--secondary-color);
+    background-color: var(--background-lighter);
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 50px;
+    border: 1px solid var(--secondary-color);
+    background-color: var(--white);
+    display: flex;
+    align-items: center;
+}
+
+.search-input input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.9rem;
+    padding: 0;
+}
+
+.search-input i {
+    color: var(--primary-color);
+    margin-right: 8px;
+}
+
+/* Chat List */
+.chat-list {
+    width: 100%;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.chat-list-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.chat-list-item:hover {
+    background-color: var(--background-lighter);
+}
+
+.chat-list-item.active {
+    background-color: #e8eaf6;
+    border-left: 4px solid var(--primary-color);
+}
+
+.chat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: var(--white);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.chat-bot-icon {
+    background-color: var(--bot-color);
+}
+
+.chat-admin-icon {
+    background-color: var(--admin-green);
+}
+
+.user-icon {
+    background-color: var(--user-blue);
+}
+
+.chat-content {
+    flex: 1;
+    min-width: 0; /* Prevents content from overflowing */
+}
+
+.chat-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-preview {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Main Chat Area */
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-light);
+    min-width: 0; /* Prevents flex items from overflowing */
+}
+
+.chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--secondary-color);
+    background-color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+}
+
+.chat-title i {
+    margin-right: 10px;
+    font-size: 1.4rem;
+}
+
+.chat-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.action-button {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+    padding: 5px;
+}
+
+.action-button:hover {
+    color: var(--primary-light);
+}
+
+/* Messages Area */
+.messages-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 15px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-bubble {
+    padding: 12px 15px;
+    border-radius: 18px;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.message-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+.incoming {
+    align-self: flex-start;
+}
+
+.incoming .message-bubble {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-bottom-left-radius: 5px;
+}
+
+.incoming .message-time {
+    color: var(--text-medium);
+}
+
+.outgoing {
+    align-self: flex-end;
+}
+
+.outgoing .message-bubble {
+    background-color: var(--primary-light);
+    color: var(--white);
+    border-bottom-right-radius: 5px;
+}
+
+.outgoing .message-time {
+    text-align: right;
+    color: var(--text-medium);
+}
+
+/* Compose Message Area */
+.compose-container {
+    padding: 15px;
+    background-color: var(--white);
+    border-top: 1px solid var(--secondary-color);
+    display: flex;
+    align-items: center;
+}
+
+.compose-input {
+    flex: 1;
+    position: relative;
+}
+
+.compose-textarea {
+    width: 100%;
+    padding: 12px 50px 12px 15px; /* Extra padding on right for button */
+    border-radius: 24px;
+    border: 1px solid var(--secondary-color);
+    background-color: var(--background-lighter);
+    resize: none;
+    height: auto;
+    min-height: 48px;
+    max-height: 120px;
+    outline: none;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    overflow-y: auto;
+    transition: border-color 0.3s ease;
+}
+
+.compose-textarea:focus {
+    border-color: var(--primary-color);
+    background-color: var(--white);
+}
+
+.send-button {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 5;
+}
+
+.send-button:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.send-icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* Welcome message when no chat is selected */
+.welcome-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-light);
+    padding: 20px;
+    text-align: center;
+    color: var(--text-dark);
+}
+
+.welcome-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.7;
+    color: var(--primary-color);
+}
+
+.welcome-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-dark);
+}
+
+.welcome-subtitle {
+    font-size: 1rem;
+    color: var(--text-medium);
+    max-width: 400px;
+}
+
+/* Empty state styling */
+.empty-state {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-medium);
+}
+
+.empty-state i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .inbox-container {
+        flex-direction: column;
+        height: calc(100vh - 60px);
+    }
+    
+    .chat-sidebar {
+        width: 100%;
+        height: 250px;
+    }
+    
+    .chat-main {
+        width: 100%;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
+    
+    .compose-textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-container {
+        margin: 0;
+        max-width: 100%;
+    }
+    
+    .inbox-container {
+        border-radius: 0;
+        height: 100vh;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}
+
+</style>
+
+<div class="chat-container">
+    <div class="inbox-container">
+        <!-- Sidebar with chat list -->
+        <div class="chat-sidebar">
+            <div class="chat-sidebar-header">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-comments"></i> Trò chuyện
+                </h3>
+            </div>
+            
+            <div class="search-container">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm trò chuyện...">
+                </div>
+            </div>
+            
+            <div class="chat-list">
+                {% if not request.user.is_superuser %}
+                    <!-- ChatBot Chat -->
+                    <a href="{% url 'chat_with_bot' %}" class="chat-list-item {% if room_id == 'bot' %}active{% endif %}" style="text-decoration: none;">
+                        <div class="chat-icon chat-bot-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="chat-content">
+                            <div class="chat-name">ChatBot Assistant</div>
+                            <div class="chat-preview">Hỗ trợ trả lời tự động 24/7</div>
+                        </div>
+                    </a>
+                    
+                    <!-- Admin Support Chat -->
+                    <a href="{% url 'chat_with_admin' %}" class="chat-list-item {% if room_id == 'admin' %}active{% endif %}" style="text-decoration: none;">
+                        <div class="chat-icon chat-admin-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="chat-content">
+                            <div class="chat-name">Phòng hỗ trợ sinh viên</div>
+                            <div class="chat-preview">Liên hệ trực tiếp với admin</div>
+                        </div>
+                    </a>
+                {% else %}
+                    <!-- ChatBot for Admin -->
+                    <a href="{% url 'chat_with_bot' %}" class="chat-list-item {% if room_id == 'bot' %}active{% endif %}" style="text-decoration: none;">
+                        <div class="chat-icon chat-bot-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="chat-content">
+                            <div class="chat-name">ChatBot Assistant</div>
+                            <div class="chat-preview">Trợ lý AI hỗ trợ admin</div>
+                        </div>
+                    </a>
+                {% endif %}
+                
+                <!-- Other chat rooms -->
+                {% for room in rooms %}
+                    <a href="{% url 'chat_dashboard_with_room' room.id %}" class="chat-list-item {% if room_id == room.id|stringformat:'s' %}active{% endif %}" style="text-decoration: none;">
+                        <div class="chat-icon user-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="chat-content">
+                            <div class="chat-name">{{ room.display_username }}</div>
+                            <div class="chat-preview">{{ room.last_message|default:"Chưa có tin nhắn." }}</div>
+                        </div>
+                    </a>
+                {% empty %}
+                    {% if request.user.is_superuser %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p>Chưa có cuộc trò chuyện nào được tạo.</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Main chat area -->
+        {% if room_id %}
+            <div class="chat-main">
+                <div class="chat-header">
+                    <div class="chat-title">
+                        {% if chat_partner_name == "ChatBot Assistant" %}
+                            <i class="fas fa-robot"></i>
+                        {% elif chat_partner_name == "Phòng hỗ trợ sinh viên" %}
+                            <i class="fas fa-headset"></i>
+                        {% else %}
+                            <i class="fas fa-user-circle"></i>
+                        {% endif %}
+                        {{ chat_partner_name }}
+                    </div>
+                    <div class="chat-actions">
+                        <button class="action-button" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="action-button" title="More options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="messages-container" id="chat-log">
+                    {% for message in messages %}
+                        <div class="message {% if message.sender == request.user %}outgoing{% else %}incoming{% endif %}">
+                            <div class="message-bubble">
+                                <div class="message-text">{{ message.message|linebreaksbr|safe }}</div>
+                            </div>
+                            <div class="message-time">{{ message.created_at|date:"H:i" }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="compose-container">
+                    <div class="compose-input">
+                        <textarea id="chat-message-input" class="compose-textarea" placeholder="Nhập tin nhắn của bạn..." rows="1"></textarea>
+                        <button id="chat-message-send" class="send-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="send-icon">
+                                <path d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Welcome screen when no chat is selected -->
+            <div class="welcome-container">
+                <div class="welcome-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h2 class="welcome-title">Chào mừng đến với hệ thống trò chuyện</h2>
+                <p class="welcome-subtitle">Vui lòng chọn một cuộc trò chuyện ở danh sách bên trái để bắt đầu</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Auto-resize textarea as user types
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('chat-message-input');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+        
+        // Scroll to bottom of chat on load
+        const chatLog = document.getElementById('chat-log');
+        if (chatLog) {
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+    });
+
+    // WebSocket connection for real-time chat
+    const roomId = "{{ room_id }}";
+    const userId = "{{ request.user.id }}";
+
+    if (roomId) {
+        const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomId}/`);
+
+        chatSocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const chatLog = document.querySelector("#chat-log");
+            
+            const newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+            newMessage.classList.add(data.sender_id == userId ? "outgoing" : "incoming");
+            
+            newMessage.innerHTML = `
+                <div class="message-bubble">
+                    <div class="message-text">${data.message.replace(/\n/g, "<br>")}</div>
+                </div>
+                <div class="message-time">vừa xong</div>
+            `;
+            
+            chatLog.appendChild(newMessage);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error("Chat socket closed unexpectedly");
+        };
+
+        function sendMessage() {
+            const messageInput = document.querySelector("#chat-message-input");
+            const message = messageInput.value.trim();
+            if (message && chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({ "message": message, "sender_id": userId }));
+                messageInput.value = "";
+                messageInput.style.height = 'auto';
+            }
+        }
+
+        document.querySelector("#chat-message-send").onclick = sendMessage;
+        document.querySelector("#chat-message-input").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                if (event.shiftKey) {
+                    // Allow newline with Shift+Enter
+                    return;
+                } else {
+                    // Send message with just Enter
+                    event.preventDefault();
+                    sendMessage();
+                }
+            }
+        });
+    }
+    
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-input input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const chatItems = document.querySelectorAll('.chat-list-item');
+                
+                chatItems.forEach(item => {
+                    const name = item.querySelector('.chat-name').textContent.toLowerCase();
+                    const preview = item.querySelector('.chat-preview').textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || preview.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+
+    window.onload = function() {
+        window.scrollTo(0, document.body.scrollHeight);
+    };
+</script>
+{% endblock %}

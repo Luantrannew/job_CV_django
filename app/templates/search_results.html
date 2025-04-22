@@ -1,0 +1,62 @@
+<!-- search_results.html -->
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="mb-4">Kết quả tìm kiếm cho "{{ query }}"</h3>
+    
+    {% if results.jobs %}
+        <h4 class="mt-4">Việc làm ({{ results.jobs|length }})</h4>
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            <!-- Trong vòng lặp hiển thị kết quả công việc -->
+            {% for job in results.jobs %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ job.job_name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ job.company.company_name }}</h6>
+                        <p class="card-text">{{ job.jd|truncatewords:20 }}</p>
+                        <!-- <a href="{% url 'job_list' job.id %}" class="btn btn-primary btn-sm">Xem chi tiết</a> -->
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if user.is_staff and results.students %}
+        <h4 class="mt-4">Sinh viên ({{ results.students|length }})</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>Mã SV</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in results.students %}
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.student_id }}</td>
+                        <td>
+                            <a href="{% url 'student_detail' student.id %}" class="btn btn-sm btn-primary">Xem</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    
+    {% if not results.jobs and not results.students %}
+        <div class="alert alert-info mt-4">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            Không tìm thấy kết quả nào cho "{{ query }}".
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
