@@ -531,11 +531,11 @@
                         <h5 class="card-title">Trợ lý AI</h5>
                         <p class="card-description">Nhận hỗ trợ từ trợ lý ảo thông minh Gemini</p>
                         <div class="quick-actions">
-                            <a href="{% url 'chat_with_gemini' %}" class="action-btn primary">
-                                <i class="fas fa-comments"></i> Chat với Gemini
+                            <a href="#" class="action-btn primary trigger-gemini-chat">
+                                <i class="fas fa-comments"></i> Chat với AI
                             </a>
                             <a href="{% url 'chat_with_admin' %}" class="action-btn secondary">
-                                <i class="fas fa-headset"></i> Hỗ trợ Admin
+                                <i class="fas fa-headset"></i> Chat với Admin
                             </a>
                         </div>
                     </div>
@@ -865,7 +865,7 @@
                         <h5 class="card-title">Chat với Gemini AI</h5>
                         <p class="card-description">Nhận hỗ trợ từ trợ lý ảo thông minh về CV, việc làm và kỹ năng</p>
                         <div class="quick-actions">
-                            <a href="{% url 'chat_with_gemini' %}" class="action-btn primary">
+                            <a href="#" class="action-btn primary trigger-gemini-chat">
                                 <i class="fas fa-comments"></i> Bắt đầu chat
                             </a>
                         </div>
@@ -1059,5 +1059,24 @@
             });
         });
     });
+    document.addEventListener("DOMContentLoaded", function() {
+    // Tìm tất cả các nút có class 'trigger-gemini-chat'
+    const chatTriggerButtons = document.querySelectorAll('.trigger-gemini-chat');
+    
+    // Thêm event listener cho từng nút
+    chatTriggerButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Ngăn chặn hành vi mặc định (chuyển hướng trang)
+            
+            // Tìm và kích hoạt nút mở chatbot
+            const openChatButton = document.getElementById('open-chat');
+            if (openChatButton) {
+                openChatButton.click();
+            } else {
+                console.error('Không tìm thấy nút mở Gemini chatbot');
+            }
+        });
+    });
+});
 </script>
 {% endblock %}
