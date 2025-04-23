@@ -551,10 +551,7 @@
                         <p class="card-description">Cập nhật thông tin cá nhân và quản lý tài khoản</p>
                         <div class="quick-actions">
                             <a href="{% url 'profile' %}" class="action-btn primary">
-                                <i class="fas fa-id-card"></i> Xem hồ sơ
-                            </a>
-                            <a href="{% url 'update_profile' %}" class="action-btn secondary">
-                                <i class="fas fa-edit"></i> Cập nhật
+                                <i class="fas fa-id-card"></i> Xem & cập nhật hồ sơ
                             </a>
                         </div>
                     </div>
@@ -804,7 +801,7 @@
                             <i class="fas fa-list-alt"></i>
                         </div>
                         <h5 class="card-title">Danh sách CV</h5>
-                        <p class="card-description">Quản lý các CV đã tạo</p>
+                        <p class="card-description">Quản lý, cập nhật, xóa các CV đã tạo. So sánh và nhận đề xuất công việc từ CV </p>
                         <div class="quick-actions">
                             <a href="{% url 'cv_list' %}" class="action-btn primary">
                                 <i class="fas fa-eye"></i> Xem danh sách
@@ -822,7 +819,7 @@
                         <h5 class="card-title">Tối ưu hóa CV với AI</h5>
                         <p class="card-description">Sử dụng công nghệ AI để cải thiện CV của bạn</p>
                         <div class="quick-actions">
-                            <a href="{% url 'chat_with_gemini' %}" class="action-btn primary">
+                            <a href="#" class="action-btn primary trigger-gemini-chat">
                                 <i class="fas fa-robot"></i> Sử dụng AI
                             </a>
                         </div>
@@ -862,8 +859,8 @@
                         <div class="feature-icon icon-chat">
                             <i class="fas fa-robot"></i>
                         </div>
-                        <h5 class="card-title">Chat với Gemini AI</h5>
-                        <p class="card-description">Nhận hỗ trợ từ trợ lý ảo thông minh về CV, việc làm và kỹ năng</p>
+                        <h5 class="card-title">CareerGemini</h5>
+                        <p class="card-description">Cố vấn nghề nghiệp AI về CV, việc làm và kỹ năng</p>
                         <div class="quick-actions">
                             <a href="#" class="action-btn primary trigger-gemini-chat">
                                 <i class="fas fa-comments"></i> Bắt đầu chat
@@ -910,8 +907,8 @@
                         <div class="feature-icon icon-chat">
                             <i class="fas fa-comment-alt"></i>
                         </div>
-                        <h5 class="card-title">Chat với Bot</h5>
-                        <p class="card-description">Nhận câu trả lời nhanh cho những câu hỏi thường gặp</p>
+                        <h5 class="card-title">InfoBot</h5>
+                        <p class="card-description">Nhận câu trả lời nhanh cho những câu hỏi thường gặp, chatbot bảo mật thông tin</p>
                         <div class="quick-actions">
                             <a href="{% url 'chat_with_bot' %}" class="action-btn primary">
                                 <i class="fas fa-robot"></i> Chat với Bot

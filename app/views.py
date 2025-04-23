@@ -253,6 +253,8 @@ def cv_detail(request, pk):
 
     return render(request, template, context)
 
+
+
 from io import BytesIO
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -1975,7 +1977,7 @@ def create_augmented_prompt(user_message, context_info):
     # Nội dung từ người dùng
     "{user_message}"
     
-    # Thông tin bối cảnh (chỉ để tham khảo, KHÔNG phải từ người dùng)
+    # Thông tin bối cảnh (chỉ để tham khảo, KHÔNG phải từ người dùng, nếu không có thông tin CV của khách hàng thì tức là họ chưa tạo ra CV nào)
     {format_context_info(context_info)}
     
     # Hướng dẫn
@@ -2003,9 +2005,9 @@ def format_context_info(context_info):
     if student_info:
         formatted_info += "## Thông tin người dùng\n"
         formatted_info += f"- Tên: {student_info.get('name', 'Không có')}\n"
-        formatted_info += f"- MSSV: {student_info.get('student_code', 'Không có')}\n"
+        # formatted_info += f"- MSSV: {student_info.get('student_code', 'Không có')}\n"
         formatted_info += f"- Ngành học: {student_info.get('department', 'Không có')}\n"
-        formatted_info += f"- Email: {student_info.get('email', 'Không có')}\n"
+        # formatted_info += f"- Email: {student_info.get('email', 'Không có')}\n"
         formatted_info += f"- Năm học: {student_info.get('study_year', 'Không có')}\n"
     
     if all_cvs:
@@ -2142,6 +2144,25 @@ def chat_with_bot(request):
         user1=min(request.user, bot_user, key=lambda u: u.id),
         user2=max(request.user, bot_user, key=lambda u: u.id)
     )
+    
+    # Nếu đây là lần đầu tạo phòng chat, thêm tin nhắn chào mừng
+    if created:
+        welcome_message = (
+            f"👋 Xin chào {request.user.get_full_name() or request.user.username}!\n\n"
+            f"Tôi là InfoBot, trợ lý thông tin của E-commerce Portal. Tôi ở đây để giúp bạn tìm thông tin "
+            f"và quản lý hồ sơ CV của bạn một cách an toàn và bảo mật.\n\n"
+            f"📋 Tôi có thể giúp bạn:\n"
+            f"• Xem và quản lý các CV của bạn\n"
+            f"• Tìm kiếm việc làm phù hợp\n"
+            f"• Cung cấp thông tin về hệ thống\n\n"
+            f"Hãy gõ 'menu' để xem tất cả các lựa chọn."
+        )
+        
+        # Lưu tin nhắn chào mừng
+        models.ChatMessage.objects.create(
+            room=room,
+            sender=bot_user,
+            message=welcome_message
+        )
 
     return redirect('chat_dashboard_with_room', room_id=room.id)
-

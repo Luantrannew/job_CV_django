@@ -10,6 +10,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.room_group_name = f"chat_{self.room_id}"
+        # Khởi tạo dictionary lưu trữ trạng thái hội thoại cho mỗi người dùng
+        self.conversation_states = {}
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -94,13 +96,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not student:
             return f"❌ Không tìm thấy sinh viên với mã: {student_code}"
         return (
-            f"🎓 Thông tin sinh viên:\n"
-            f"- Họ tên: {student.name}\n"
-            f"- Mã sinh viên: {student.student_code}\n"
-            f"- Email: {student.email}\n"
-            f"- Số điện thoại: {student.phone}\n"
-            f"- Năm học: {student.study_year}\n"
-            f"- Ngành: {student.department.name if student.department else 'Chưa có'}"
+            f"🎓 **Thông tin sinh viên:**\n\n"
+            f"Họ tên: **{student.name}**\n"
+            f"Mã sinh viên: **{student.student_code}**\n"
+            f"Email: {student.email}\n"
+            f"Số điện thoại: {student.phone}\n"
+            f"Năm học: {student.study_year}\n"
+            f"Ngành: {student.department.name if student.department else 'Chưa có'}"
         )
     
     @database_sync_to_async
@@ -108,18 +110,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Liệt kê tất cả CV của người dùng."""
         student = Student.objects.filter(user=user).first()
         if not student:
-            return "❌ Bạn chưa có CV nào."
+            return (
+                "❌ Bạn chưa có CV nào.\n\n"
+                "💡 Bạn có thể tạo CV mới bằng cách:\n"
+                "• Nhấn vào 'Tạo CV mới' trong mục Quản lý CV\n"
+                "• Hoặc truy cập trực tiếp tại: http://127.0.0.1:8000/cv-form/"
+            )
 
         cvs = CV.objects.filter(student=student)
         if not cvs:
-            return "❌ Bạn chưa có CV nào."
+            return (
+                "❌ Bạn chưa có CV nào.\n\n"
+                "💡 Bạn có thể tạo CV mới bằng cách:\n"
+                "• Nhấn vào 'Tạo CV mới' trong mục Quản lý CV\n"
+                "• Hoặc truy cập trực tiếp tại: http://127.0.0.1:8000/cv-form/"
+            )
 
-        response = "📄 Danh sách CV của bạn:\n"
+        response = "📄 **DANH SÁCH CV CỦA BẠN**\n\n"
         for cv in cvs:
-            response += f"🔹 {cv.name} (🆔 {cv.id}, 📅 {cv.create_date or 'Không có ngày tạo'})\n"
-            response += f"   <a href='http://127.0.0.1:8000/cv/{cv.id}/'>Xem chi tiết CV ở đây</a>\n"
-            response += f"  - Nhắn lệnh sau để xóa CV {cv.id} (/cv delete {cv.id})\n"
-            response += f"  - Nhắn lệnh sau để có các job đề xuất phù hợp (/cv jobs {cv.id})\n\n"
+            response += f"🔹 **{cv.name}** (ID: {cv.id})\n"
+            response += f"   🔗 <a href='http://127.0.0.1:8000/cv/{cv.id}/'>Xem chi tiết</a>\n"
+            response += f"   📅 Ngày tạo: {cv.create_date or 'Không có'}\n\n"
+
+        response += (
+            "💡 **Bạn muốn làm gì tiếp theo?**\n"
+            "• Xem chi tiết: gõ 'Xem CV [id]'\n"
+            "• Tìm việc phù hợp: gõ 'Tìm việc cho CV [id]'\n"
+            "• Xóa CV: gõ 'Xóa CV [id]'\n"
+            "• Tạo CV mới: truy cập http://127.0.0.1:8000/cv-form/"
+        )
 
         return response.strip()
 
@@ -130,120 +149,292 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not student:
             return "❌ Bạn không có quyền xóa CV này."
 
-        cv = CV.objects.filter(id=cv_id, student=student).first()
-        if not cv:
-            return f"❌ Không tìm thấy CV với ID: {cv_id}"
+        try:
+            cv_id = int(cv_id)
+            cv = CV.objects.filter(id=cv_id, student=student).first()
+            if not cv:
+                return f"❌ Không tìm thấy CV với ID: {cv_id}"
 
-        cv.delete()
-        return f"✅ CV '{cv.name}' đã được xóa thành công."
+            cv_name = cv.name
+            cv.delete()
+            
+            return (
+                f"✅ CV '{cv_name}' đã được xóa thành công.\n\n"
+                f"💡 Bạn có thể:\n"
+                f"• Xem danh sách CV còn lại (gõ 'CV của tôi')\n"
+                f"• Tạo CV mới tại http://127.0.0.1:8000/cv-form/"
+            )
+        except ValueError:
+            return "❌ ID CV không hợp lệ. Vui lòng nhập một số."
 
     @database_sync_to_async
     def get_cv_jobs(self, user, cv_id):
         """Trả về danh sách công việc phù hợp với CV bằng NLP."""
-        cv = CV.objects.filter(id=cv_id, student__user=user).first()
-        if not cv:
-            return f"❌ Không tìm thấy CV với ID: {cv_id}"
+        try:
+            cv_id = int(cv_id)
+            cv = CV.objects.filter(id=cv_id, student__user=user).first()
+            if not cv:
+                return f"❌ Không tìm thấy CV với ID: {cv_id}"
 
-        # Lấy dữ liệu từ CV
-        cv_data = {
-            "skills": [skill.skill.skill for skill in SkillinCV.objects.filter(cv=cv)],
-            "experiences": [exp.experience.role for exp in ExperienceinCV.objects.filter(cv=cv)],
-            "projects": [proj.project_name for proj in Project.objects.filter(cv=cv)],
-        }
-
-        # Lấy danh sách công việc từ database
-        jobs = Job.objects.select_related("company", "industry", "hr").all()
-        job_data = [
-            {
-                "job_name": job.job_name,
-                "company": job.company.company_name if job.company else "N/A",
-                "industry": job.industry.industry_name if job.industry else "N/A",
-                "hr": job.hr.name if job.hr else "N/A",
-                "salary": job.salary,
-                "jd": job.jd,
-                "link_job": job.link_job
+            # Lấy dữ liệu từ CV
+            cv_data = {
+                "skills": [skill.skill.skill for skill in SkillinCV.objects.filter(cv=cv)],
+                "experiences": [exp.experience.role for exp in ExperienceinCV.objects.filter(cv=cv)],
+                "projects": [proj.project_name for proj in Project.objects.filter(cv=cv)],
             }
-            for job in jobs
-        ]
 
-        # Gọi NLP để xử lý gợi ý công việc
-        recommended_jobs = nlp.process_cv_to_jobs(cv_data, job_data).head(5)  # Lấy top 5 công việc phù hợp
+            # Lấy danh sách công việc từ database
+            jobs = Job.objects.select_related("company", "industry", "hr").all()
+            job_data = [
+                {
+                    "job_name": job.job_name,
+                    "company": job.company.company_name if job.company else "N/A",
+                    "industry": job.industry.industry_name if job.industry else "N/A",
+                    "hr": job.hr.name if job.hr else "N/A",
+                    "salary": job.salary,
+                    "jd": job.jd,
+                    "link_job": job.link_job
+                }
+                for job in jobs
+            ]
 
-        if recommended_jobs.empty:
-            return f"❌ Không có công việc nào phù hợp với CV '{cv.name}'."
+            # Gọi NLP để xử lý gợi ý công việc
+            recommended_jobs = nlp.process_cv_to_jobs(cv_data, job_data).head(5)  # Lấy top 5 công việc phù hợp
 
-        # Tạo danh sách công việc trả về chatbot
-        response = f"💼 **Công việc phù hợp với CV '{cv.name}':**\n\n"
-        for _, job in recommended_jobs.iterrows():
-            response += f"🔹 **{job['job_name']}** tại **{job['company']}**\n"
-            response += f"   🔗 <a href='{job['link_job']}'>Xem chi tiết</a>\n\n"
+            if recommended_jobs.empty:
+                return (
+                    f"❌ Không có công việc nào phù hợp với CV '{cv.name}'.\n\n"
+                    f"💡 Bạn có thể:\n"
+                    f"• Cập nhật CV với nhiều kỹ năng hơn\n"
+                    f"• Xem danh sách tất cả việc làm tại: http://127.0.0.1:8000/jobs/"
+                )
 
-        return response.strip()
+            # Tạo danh sách công việc trả về chatbot
+            response = f"💼 **Công việc phù hợp với CV '{cv.name}':**\n\n"
+            for _, job in recommended_jobs.iterrows():
+                response += f"🔹 **{job['job_name']}** tại **{job['company']}**\n"
+                response += f"   💰 Lương: {job['salary'] if job['salary'] else 'Thỏa thuận'}\n"
+                response += f"   🔗 <a href='{job['link_job']}'>Xem chi tiết và ứng tuyển</a>\n\n"
+
+            response += (
+                "💡 **Bạn muốn làm gì tiếp theo?**\n"
+                "• Xem danh sách việc làm khác (truy cập http://127.0.0.1:8000/jobs/)\n"
+                "• Tìm việc cho CV khác (gõ 'CV của tôi' và chọn CV khác)\n"
+                "• Cập nhật CV hiện tại (truy cập link CV ở trên)"
+            )
+            
+            return response.strip()
+        except ValueError:
+            return "❌ ID CV không hợp lệ. Vui lòng nhập một số."
 
     @database_sync_to_async
     def get_cv_view_link(self, user, cv_id):
         """Trả về đường dẫn đến trang chi tiết của CV."""
-        cv = CV.objects.filter(id=cv_id, student__user=user).first()
-        if not cv:
-            return f"❌ Không tìm thấy CV với ID: {cv_id}"
+        try:
+            cv_id = int(cv_id)
+            cv = CV.objects.filter(id=cv_id, student__user=user).first()
+            if not cv:
+                return f"❌ Không tìm thấy CV với ID: {cv_id}"
 
-        return f"🔗 <a href='http://127.0.0.1:8000/cv/{cv.id}/'>Xem chi tiết CV '{cv.name}'</a>"
+            return (
+                f"🔗 **CV: {cv.name}**\n\n"
+                f"Xem chi tiết tại: <a href='http://127.0.0.1:8000/cv/{cv.id}/'>http://127.0.0.1:8000/cv/{cv.id}/</a>\n\n"
+                f"💡 **Bạn muốn làm gì tiếp theo?**\n"
+                f"• Tìm việc phù hợp cho CV này (gõ 'Tìm việc cho CV {cv.id}')\n"
+                f"• Cập nhật CV (truy cập link CV bên trên)\n"
+                f"• Xem các CV khác (gõ 'CV của tôi')"
+            )
+        except ValueError:
+            return "❌ ID CV không hợp lệ. Vui lòng nhập một số."
 
     async def generate_bot_response(self, message, is_admin, user):
-
-        if message.startswith("/admin"):
+        """Tạo phản hồi cho tin nhắn người dùng với hỗ trợ trạng thái hội thoại."""
+        user_id = user.id
+        
+        # Khởi tạo trạng thái hội thoại nếu chưa có
+        if not hasattr(self, 'conversation_states'):
+            self.conversation_states = {}
+            
+        if user_id not in self.conversation_states:
+            self.conversation_states[user_id] = {'state': 'idle', 'context': {}}
+            
+        state = self.conversation_states[user_id]['state']
+        context = self.conversation_states[user_id]['context']
+        
+        # Xử lý các lệnh để hủy trạng thái hiện tại
+        if message.lower() in ['hủy', 'cancel', 'quay lại', 'thoát']:
+            self.conversation_states[user_id] = {'state': 'idle', 'context': {}}
+            return "✅ Đã hủy thao tác hiện tại. Bạn cần hỗ trợ gì thêm không? Gõ 'menu' để xem các lựa chọn."
+            
+        # Xử lý trạng thái hội thoại
+        if state == 'awaiting_cv_id':
+            action = context.get('action')
+            try:
+                cv_id = message.strip()
+                
+                if action == 'view':
+                    self.conversation_states[user_id] = {'state': 'idle', 'context': {}}
+                    return await self.get_cv_view_link(user, cv_id)
+                elif action == 'delete':
+                    self.conversation_states[user_id] = {'state': 'idle', 'context': {}}
+                    return await self.delete_cv(user, cv_id)
+                elif action == 'jobs':
+                    self.conversation_states[user_id] = {'state': 'idle', 'context': {}}
+                    return await self.get_cv_jobs(user, cv_id)
+                    
+            except Exception as e:
+                return (
+                    f"⚠️ Vui lòng nhập ID CV hợp lệ (một số).\n"
+                    f"Hoặc gõ 'hủy' để quay lại menu chính."
+                )
+                
+        # Xử lý lệnh admin
+        if message.startswith("/admin") or message.lower().startswith("admin"):
             if not is_admin:
                 return "⛔ Bạn không có quyền sử dụng lệnh này!"
 
             command_parts = message.split()
             if len(command_parts) == 1:
-                return "⚠️ Vui lòng nhập lệnh sau /admin. Ví dụ: '/admin status' hoặc '/admin lookup'."
+                return (
+                    "⚠️ Vui lòng nhập lệnh sau /admin. Ví dụ:\n"
+                    "• '/admin status' - Kiểm tra trạng thái bot\n"
+                    "• '/admin lookup [mã sinh viên]' - Tra cứu thông tin sinh viên"
+                )
 
-            command = command_parts[1]
+            command = command_parts[1].lower()
             if command == "status":
                 return "✅ Bot đang hoạt động bình thường."
 
             elif command == "lookup":
                 if len(command_parts) != 3:
-                    return "⚠️ Lệnh không đúng. Sử dụng: `/admin lookup [student_code]`."
+                    return "⚠️ Lệnh không đúng. Sử dụng: `/admin lookup [mã sinh viên]`."
                 student_code = command_parts[2]
                 return await self.lookup_student_info(student_code)
 
             else:
-                return f"⚠️ Không nhận diện được lệnh: '{command}'"
+                return (
+                    f"⚠️ Không nhận diện được lệnh: '{command}'\n"
+                    f"Các lệnh admin có sẵn:\n"
+                    f"• 'admin status' - Kiểm tra trạng thái\n"
+                    f"• 'admin lookup [mã sinh viên]' - Tra cứu sinh viên"
+                )
             
-        # Xử lý lệnh kiểm tra CV
-        elif message.startswith("/cv"):
-            command_parts = message.split()
-            
-            if len(command_parts) == 1:
+        # Xử lý các biến thể câu lệnh xem danh sách CV
+        cv_list_patterns = ['/cv', 'cv của tôi', 'xem cv', 'danh sách cv', 'cv', 'hồ sơ', 'hồ sơ của tôi']
+        if message.lower() in cv_list_patterns or any(message.lower().startswith(p) for p in cv_list_patterns):
+            if message.lower().strip() == "/cv" or message.lower() in cv_list_patterns:
                 return await self.get_cv_list(user)
-
-            elif len(command_parts) == 3 and command_parts[1] == "delete":
-                return await self.delete_cv(user, command_parts[2])
-
-            elif len(command_parts) == 3 and command_parts[1] == "jobs":
-                return await self.get_cv_jobs(user, command_parts[2])
-            
-            elif len(command_parts) == 3 and command_parts[1] == "view":
-                return await self.get_cv_view_link(user, command_parts[2])
-            
-        elif message.lower() == "help":
-            help_message = (
-                "🤖 **Hướng dẫn sử dụng ChatBot:**\n\n"
-                "💬 **Lệnh cho người dùng:**\n"
-                "- `/cv` - Xem danh sách CV của bạn.\n"
-                "- `/cv view [cv_id]` - Xem chi tiết CV theo ID.\n"
-                "- `/cv delete [cv_id]` - Xóa CV theo ID.\n"
-                "- `/cv jobs [cv_id]` - Xem công việc phù hợp với CV.\n\n"
-                "🛠️ **Lệnh cho Admin:**\n"
-                "- `/admin status` - Kiểm tra trạng thái bot.\n"
-                "- `/admin lookup [student_code]` - Tra cứu thông tin sinh viên.\n\n"
-                "📄 **Cách sử dụng:**\n"
-                "- Gõ lệnh theo đúng định dạng. Ví dụ: `/cv view 5` để xem CV có ID là 5.\n"
-                "- Sử dụng `help` bất kỳ lúc nào để xem hướng dẫn này.\n\n"
-                "🚀 **Lưu ý:** Một số lệnh chỉ khả dụng nếu bạn là quản trị viên."
+                
+        # Xử lý lệnh xem chi tiết CV
+        view_cv_patterns = ['xem cv', 'xem hồ sơ', 'chi tiết cv', 'view cv', 'mở cv']
+        if any(message.lower().startswith(pattern) for pattern in view_cv_patterns):
+            parts = message.lower().split()
+            if len(parts) >= 2 and parts[-1].isdigit():
+                return await self.get_cv_view_link(user, parts[-1])
+            else:
+                self.conversation_states[user_id] = {'state': 'awaiting_cv_id', 'context': {'action': 'view'}}
+                return (
+                    "🔍 Vui lòng nhập ID của CV bạn muốn xem:\n"
+                    "(ID là số hiển thị bên cạnh tên CV. Gõ 'hủy' để quay lại.)"
+                )
+                
+        # Xử lý lệnh xóa CV
+        delete_cv_patterns = ['xóa cv', 'delete cv', 'hủy cv', 'loại bỏ cv', 'xoa cv']
+        if any(message.lower().startswith(pattern) for pattern in delete_cv_patterns):
+            parts = message.lower().split()
+            if len(parts) >= 2 and parts[-1].isdigit():
+                return await self.delete_cv(user, parts[-1])
+            else:
+                self.conversation_states[user_id] = {'state': 'awaiting_cv_id', 'context': {'action': 'delete'}}
+                return (
+                    "⚠️ Vui lòng nhập ID của CV bạn muốn xóa:\n"
+                    "(ID là số hiển thị bên cạnh tên CV. Gõ 'hủy' để quay lại.)"
+                )
+                
+        # Xử lý lệnh tìm việc phù hợp với CV
+        job_for_cv_patterns = ['tìm việc', 'việc làm phù hợp', 'gợi ý việc', 'cv jobs', 
+                               'tìm việc cho cv', 'việc phù hợp', 'công việc phù hợp']
+        if any(message.lower().startswith(pattern) for pattern in job_for_cv_patterns):
+            parts = message.lower().split()
+            # Tìm số cuối cùng trong tin nhắn (có thể là ID CV)
+            cv_id = None
+            for part in reversed(parts):
+                if part.isdigit():
+                    cv_id = part
+                    break
+                    
+            if cv_id:
+                return await self.get_cv_jobs(user, cv_id)
+            else:
+                self.conversation_states[user_id] = {'state': 'awaiting_cv_id', 'context': {'action': 'jobs'}}
+                return (
+                    "💼 Vui lòng nhập ID của CV bạn muốn tìm việc phù hợp:\n"
+                    "(ID là số hiển thị bên cạnh tên CV. Gõ 'hủy' để quay lại.)"
+                )
+                
+        # Xử lý lệnh help/menu
+        if message.lower() in ['help', 'trợ giúp', 'hướng dẫn', 'menu']:
+            return (
+                "🤖 **HƯỚNG DẪN SỬ DỤNG INFOBOT**\n\n"
+                "**📄 Quản lý CV**\n"
+                "• Xem danh sách CV: gõ 'CV của tôi'\n"
+                "• Xem chi tiết CV: gõ 'Xem CV [ID]'\n"
+                "• Xóa CV: gõ 'Xóa CV [ID]'\n"
+                "• Tìm việc phù hợp: gõ 'Tìm việc cho CV [ID]'\n\n"
+                
+                "**💬 Các lệnh khác**\n"
+                "• Trợ giúp/Menu: gõ 'help' hoặc 'menu'\n"
+                "• Hủy thao tác hiện tại: gõ 'hủy' hoặc 'cancel'\n"
+                "• Chuyển sang CareerGemini: gõ 'dùng CareerGemini'\n\n"
+                
+                "**🛠️ Dành cho Admin**\n"
+                "• Kiểm tra trạng thái: gõ 'admin status'\n"
+                "• Tra cứu sinh viên: gõ 'admin lookup [mã sinh viên]'\n\n"
+                
+                "**📝 Lưu ý:**\n"
+                "• InfoBot bảo mật thông tin cá nhân của bạn\n"
+                "• Có thể dùng Tiếng Việt không dấu hoặc có dấu\n"
+                "• Thông tin quan trọng sẽ không được chia sẻ với hệ thống bên ngoài"
             )
-            return help_message
-
-        return f"🤖 ChatBot: Chào bạn, nếu cần giúp đỡ về các câu lệnh, hãy gõ 'help' để xem hướng dẫn."
+            
+        # Xử lý chuyển sang CareerGemini
+        if any(message.lower().startswith(p) for p in ['dùng careergemini', 'sử dụng careergemini', 
+                                                       'chuyển sang careergemini', 'dung careergemini']):
+            return (
+                "🔄 Để chuyển sang sử dụng CareerGemini (trợ lý AI nâng cao):\n\n"
+                "1. Nhấn vào nút 'CareerGemini' trên thanh công cụ\n"
+                "2. Hoặc truy cập: http://127.0.0.1:8000/chatbotgemini/\n\n"
+                "⚠️ **Lưu ý:** CareerGemini sử dụng AI của Google Gemini và sẽ tiếp cận các thông tin được chia sẻ. "
+                "Không chia sẻ thông tin nhạy cảm với CareerGemini."
+            )
+            
+        # Xử lý câu chào và các tin nhắn thông thường
+        greetings = ['xin chào', 'hello', 'hi', 'chào', 'hey', 'alo', 'chao']
+        if message.lower() in greetings or any(message.lower().startswith(g) for g in greetings):
+            student_name = ""
+            student = await database_sync_to_async(lambda: Student.objects.filter(user=user).first())()
+            if student:
+                student_name = student.name
+                
+            return (
+                f"👋 Chào {student_name or user.username}!\n\n"
+                f"Tôi là InfoBot, trợ lý thông tin bảo mật của E-commerce Portal. "
+                f"Tôi có thể giúp bạn quản lý CV và thông tin cá nhân một cách an toàn.\n\n"
+                f"Bạn cần hỗ trợ gì hôm nay? Gõ 'menu' để xem các tùy chọn."
+            )
+            
+        # Xử lý câu cảm ơn
+        thank_patterns = ['cảm ơn', 'thank', 'cám ơn', 'thanks', 'cam on']
+        if message.lower() in thank_patterns or any(message.lower().startswith(t) for t in thank_patterns):
+            return (
+                "🙂 Không có gì! Rất vui khi được hỗ trợ bạn.\n"
+                "Nếu cần thêm thông tin, đừng ngần ngại hỏi tôi nhé!"
+            )
+        
+        # Câu trả lời mặc định cho những tin nhắn không nhận dạng được
+        return (
+            f"🤖 Tôi chưa hiểu yêu cầu của bạn. Bạn có thể:\n\n"
+            f"• Gõ 'menu' để xem tất cả các lựa chọn\n"
+            f"• Gõ 'CV của tôi' để xem danh sách CV\n"
+            f"• Gõ 'help' để được trợ giúp\n"
+        )
