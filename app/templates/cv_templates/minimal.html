@@ -1,0 +1,572 @@
+{% extends "base_generic.html" %}
+{% load custom_filters %}
+{% load static %}
+{% block title %}
+    <title>CV - {{ cv.name }} | Minimal Design</title>
+    <link rel="icon" type="image/png" href="{% static 'images/logo_ecom2.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Minimal CV Style */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            background-color: #fff;
+        }
+        
+        .page-container {
+            max-width: 1500px;
+            margin: 50px auto;
+            background: white;
+            padding: 0;
+        }
+        
+        .cv-detail-section {
+            padding: 20px 40px;
+        }
+        
+        .profile-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 30px;
+        }
+        
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 30px;
+            border: 1px solid #eee;
+        }
+        
+        .cv-name {
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            color: #000;
+        }
+        
+        .contact-info {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .contact-info i {
+            color: #999;
+            width: 20px;
+        }
+        
+        .social-links {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .social-link {
+            color: #555;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .social-link:hover {
+            color: #000;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-header {
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #000;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .job-entry {
+            margin-bottom: 25px;
+        }
+        
+        .job-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #000;
+            display: inline;
+        }
+        
+        .company-link {
+            color: #555;
+            text-decoration: none;
+        }
+        
+        .date {
+            float: right;
+            color: #999;
+        }
+        
+        .responsibilities {
+            margin-top: 10px;
+            padding-left: 0;
+            list-style-type: none;
+        }
+        
+        .responsibilities div {
+            padding: 3px 0;
+            color: #555;
+        }
+        
+        .badge {
+            background-color: #f5f5f5 !important;
+            color: #333 !important;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            margin: 5px;
+            border-radius: 4px;
+            font-weight: 400;
+            border: 1px solid #eee;
+        }
+        
+        .list-group-item {
+            border: none;
+            padding: 8px 0;
+            color: #555;
+            border-bottom: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 400;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+        }
+        
+        .btn:hover {
+            background-color: #f5f5f5;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn i {
+            margin-right: 6px;
+            color: #777;
+        }
+        
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+            border: 1px solid #eee;
+        }
+        
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+        
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-picture {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .date {
+                float: none;
+                display: block;
+                margin-top: 5px;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-container">
+        <div class="action-buttons">
+            <a href="{% url 'generate_cv_pdf' cv.pk %}" class="btn">
+                <i class="fas fa-download"></i> Tải CV
+            </a>
+            <a href="#" id="compare-job-btn" class="btn">
+                <i class="fas fa-balance-scale"></i> So sánh công việc với CV
+            </a>
+            <a href="#" id="recommended-jobs-btn" class="btn">
+                <i class="fas fa-briefcase"></i> Gợi ý công việc theo CV
+            </a>
+            <!-- Thêm nút chọn template -->
+            <a href="#" id="change-template-btn" class="btn" data-bs-toggle="modal" data-bs-target="#templateModal">
+                <i class="fas fa-paint-brush"></i> Thay đổi thiết kế
+            </a>
+        </div>
+        
+        <div id="compare-job-form" class="form-container">
+            <h4><i class="fas fa-search"></i> So sánh CV với mô tả công việc bạn ứng tuyển</h4>
+            <p class="text-muted" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Công cụ này chỉ hoạt động với mô tả công việc có cùng ngôn ngữ với CV của bạn</p>
+            <form id="jd-form" method="POST">
+                {% csrf_token %}
+                <textarea name="job_description" rows="4" class="form-control" placeholder="Nhập mô tả công việc (JD) ở đây..."></textarea>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> So sánh
+                </button>
+            </form>
+            <div id="comparison-result" class="comparison-result" style="display: none;"></div>
+        </div>
+
+        <div class="cv-detail-section">
+            <!-- Profile Section -->
+            <div class="profile-section">
+                {% if cv.avatar %}
+                    <img src="{{ cv.avatar.url }}" alt="Avatar" class="profile-picture">
+                {% else %}
+                    <img src="{% static 'images/logo_ecom2.png' %}" alt="Default Avatar" class="profile-picture">
+                {% endif %}
+                <div class="profile-details">
+                    <h2 class="cv-name">{{ cv.student.name }}</h2>
+                    <div class="contact-info mb-3">
+                        <p><i class="fas fa-phone"></i> {{ cv.student.phone }}</p>
+                        <p><i class="fas fa-envelope"></i> {{ cv.student.email }}</p>
+                    </div>
+                    <div class="social-links">
+                        {% for link in social_links %}
+                            <a href="{{ link.link }}" target="_blank" class="social-link">
+                                <i class="{{ link.icon_class }}"></i> 
+                                {{ link.displayname_set.first.display_name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Me Section -->
+            {% if cv.about_me %}
+            <section class="mb-4">
+                <div class="section">
+                    <h4 class="section-header">About Me</h4>
+                    <p>{{ cv.about_me }}</p>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Experience Section -->
+            {% if experiences %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Professional Experience</div>
+                    {% for experience in experiences %}
+                    <div class="job-entry">
+                        <div class="job-title">{{ experience.experience.role }}</div>
+                        <a href="#" class="company-link"> — {{ experience.experience.company_name }}</a>
+                        <span class="date">
+                            {{ experience.experience.start_date|date:"d/m/Y" }} - 
+                            {% if experience.experience.end_date %}
+                                {{ experience.experience.end_date|date:"d/m/Y" }}
+                            {% else %}
+                                Present
+                            {% endif %}
+                        </span>
+                        <ul class="responsibilities">
+                            {% for context_item in experience.experience.context.splitlines %}
+                            <div>{{ context_item|trim_leading_dot }}</div>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Certifications Section -->
+            {% if certifications %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Certifications</div>
+                    <ul class="list-group list-group-flush">
+                        {% for cert in certifications %}
+                            <li class="list-group-item">
+                                {{ cert.certificate }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Skills Section -->
+            {% if skills %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Skills</div>
+                    <div class="mt-3">
+                        {% for skill in skills %}
+                        <span class="badge">{{ skill.skill.skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Languages Section -->
+            {% if languages %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Languages</div>
+                    <ul class="list-group list-group-flush">
+                        {% for lang in languages %}
+                            <li class="list-group-item">
+                                <strong>{{ lang.language.language }}</strong>
+                                <span class="text-muted"> — {{ lang.language.text }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Projects Section -->
+            {% if projects %}
+            <section class="mb-4">
+                <div class="section">
+                    <div class="section-header">Projects</div>
+                    {% for project in projects %}
+                        <div class="mb-3 job-entry">
+                            <h5 class="mb-1 fw-bold">{{ project.project_name }}</h5>
+                            <ul class="responsibilities">
+                                {% for content_item in project.project_content.splitlines %}
+                                <div>
+                                    {{ content_item|trim_leading_dot }}
+                                </div>
+                                {% endfor %}
+                                {% if project.project_link_set.exists %}
+                                <div>
+                                    <a href="{{ project.project_link_set.first.link }}" target="_blank" class="text-decoration-none text-muted">
+                                        <i class="fas fa-external-link-alt"></i> Project Link
+                                    </a>
+                                </div>   
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        </div>
+        
+        <div id="recommended-jobs-container"></div>
+    </div>
+
+    <!-- Template Modal -->
+    <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="templateModalLabel">Chọn thiết kế CV</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {% for template in cv_templates %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card template-card {% if cv.template.id == template.id %}border-primary{% endif %}">
+                                <div class="card-body text-center">
+                                    {% if template.thumbnail %}
+                                    <img src="{{ template.thumbnail.url }}" alt="{{ template.name }}" class="img-fluid mb-2" style="max-height: 150px;">
+                                    {% else %}
+                                    <div class="placeholder-image bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                        <i class="fas fa-file-alt fa-3x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    <h5 class="card-title">{{ template.name }}</h5>
+                                    <form method="post" action="{% url 'cv_detail' cv.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="template_id" value="{{ template.id }}">
+                                        <button type="submit" class="btn btn-sm {% if cv.template.id == template.id %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                            {% if cv.template.id == template.id %}
+                                            <i class="fas fa-check"></i> Đang sử dụng
+                                            {% else %}
+                                            Chọn thiết kế
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" id="recommended-jobs-info" hidden></a>
+    
+    <!-- Back to top button -->
+    <div id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Show/hide back to top button based on scroll position
+        window.addEventListener('scroll', function() {
+            const backToTopButton = document.getElementById('back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        });
+        
+        // Scroll to top when button is clicked
+        document.getElementById('back-to-top').addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    
+        // Recommended jobs functionality
+        document.getElementById("recommended-jobs-btn").addEventListener("click", function (event) {
+            event.preventDefault();
+            
+            // Add loading indicator
+            const jobsContainer = document.getElementById("recommended-jobs-container");
+            jobsContainer.innerHTML = '<div class="text-center my-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-3">Đang tải công việc phù hợp...</p></div>';
+            
+            fetch("{% url 'recommended_jobs_by_cv' cv.pk %}", {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
+            .then((response) => response.text())
+            .then((html) => {
+                document.getElementById("recommended-jobs-container").innerHTML = html;
+                document.getElementById("recommended-jobs-info").classList.remove("d-none");
+
+                // Cuộn xuống phần danh sách công việc
+                document.getElementById("recommended-jobs-container").scrollIntoView({ behavior: "smooth", block: "start" });
+            })
+            .catch((error) => {
+                console.error("Error fetching jobs:", error);
+                document.getElementById("recommended-jobs-container").innerHTML = 
+                    '<div class="alert alert-danger">Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.</div>';
+            });
+        });
+
+        // Hiển thị form nhập JD khi bấm vào nút so sánh
+        document.getElementById("compare-job-btn").addEventListener("click", function (event) {
+            event.preventDefault();
+            const form = document.getElementById("compare-job-form");
+            
+            if (form.style.display === "block") {
+                form.style.display = "none";
+            } else {
+                form.style.display = "block";
+            }
+        });
+
+        // Xử lý form so sánh công việc và CV
+        document.getElementById("jd-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            
+            // Show loading indicator
+            document.getElementById("comparison-result").innerHTML = 
+                '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Đang phân tích...</div>';
+            document.getElementById("comparison-result").style.display = "block";
+
+            const jobDescription = document.querySelector('textarea[name="job_description"]').value;
+            
+            fetch("{% url 'compare_cv_with_job' cv.pk %}", {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]').value
+                },
+                body: JSON.stringify({ job_description: jobDescription })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let similarityClass = "text-danger";
+                if (data.similarity >= 70) {
+                    similarityClass = "text-success";
+                } else if (data.similarity >= 50) {
+                    similarityClass = "text-warning";
+                }
+                
+                document.getElementById("comparison-result").innerHTML = `
+                    <h5><i class="fas fa-chart-pie"></i> Kết quả so sánh:</h5>
+                    <p>Độ tương đồng: <span class="${similarityClass} fw-bold">${data.similarity.toFixed(2)}%</span></p>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-${data.similarity >= 70 ? 'success' : data.similarity >= 50 ? 'warning' : 'danger'}" 
+                             role="progressbar" 
+                             style="width: ${data.similarity}%;" 
+                             aria-valuenow="${data.similarity}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                             ${data.similarity.toFixed(2)}%
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error("Error comparing CV with job:", error);
+                document.getElementById("comparison-result").innerHTML = 
+                    '<div class="alert alert-danger">Có lỗi xảy ra khi so sánh. Vui lòng thử lại sau.</div>';
+            });
+        });
+    </script>
+{% endblock %}

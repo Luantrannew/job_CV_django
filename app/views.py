@@ -17,6 +17,7 @@ from django.db.models import Q, Max
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import traceback
+from .utils import get_or_create_templates
 
 def index (request): 
     template = 'index.html'
@@ -225,20 +226,35 @@ def cv_list(request):
     }
     return render(request, template, context)
 
-
+@login_required(login_url='sign_in')
 def cv_detail(request, pk):
-    template = 'cv_detail.html'
     cv = models.CV.objects.filter(pk=pk).last()
-
+    
+    # Lấy danh sách tất cả template
+    cv_templates = get_or_create_templates()
+    
+    # Xử lý template selection
+    if request.method == "POST" and 'template_id' in request.POST:
+        template_id = request.POST.get('template_id')
+        template_obj = models.CVTemplate.objects.get(id=template_id)
+        cv.template = template_obj
+        cv.save()
+    
+    # Nếu CV chưa có template, sử dụng template mặc định
+    if not cv.template:
+        cv.template = cv_templates[0]  # Template đầu tiên (Original)
+        cv.save()
+    
+    # Lấy template file từ model
+    template_file = cv.template.template_file
+    
     experiences = models.ExperienceinCV.objects.filter(cv=cv).select_related('experience')
     educations = models.EducationinCV.objects.filter(cv=cv).select_related('education')
     skills = models.SkillinCV.objects.filter(cv=cv).select_related('skill')
     projects = models.Project.objects.filter(cv=cv)
     certifications = models.Certification.objects.filter(cv=cv)
     languages = models.LanguageinCV.objects.filter(cv=cv).select_related('language')
-
-    # Use prefetch_related for display names to optimize queries
-    social_links = models.SocialLink.objects.filter(cv=cv).prefetch_related('displayname_set') # chúa ngu
+    social_links = models.SocialLink.objects.filter(cv=cv).prefetch_related('displayname_set')
 
     context = {
         'cv': cv,
@@ -249,10 +265,10 @@ def cv_detail(request, pk):
         'certifications': certifications,
         'languages': languages,
         'social_links': social_links,
+        'cv_templates': cv_templates,
     }
 
-    return render(request, template, context)
-
+    return render(request, template_file, context)
 
 
 from io import BytesIO

@@ -7,6 +7,14 @@ from django.contrib.auth.models import User
 ######## Module CV ##########################
 #############################################
 
+class CVTemplate(models.Model):
+    name = models.CharField(max_length=100,null=True, blank=True)  # Tên mẫu CV
+    template_file = models.CharField(max_length=100, null=True, blank=True)  # Tên file mẫu CV
+    thumbnail = models.ImageField(upload_to='cv_templates/', null=True, blank=True)
+    
+    def __str__(self):
+        return self.name
+
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Tên ngành học
     department_code = models.CharField(max_length=20, unique=True, null=True, blank=True)  # Mã ngành học
@@ -35,6 +43,7 @@ class Student(models.Model):
         return f"{self.pk}: {self.name} ({self.student_code})"
 
 class CV(models.Model):
+    template = models.ForeignKey(CVTemplate, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=100)  # tên cv 
     about_me = models.TextField(null=True, default=None)
     student = models.ForeignKey("Student", on_delete=models.SET_NULL, null=True, default=None)
