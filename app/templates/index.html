@@ -3,6 +3,7 @@
 {% load static %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+    /* Styles cho cả 2 chế độ (đã đăng nhập và chưa đăng nhập) */
     .hero-section {
         background: linear-gradient(135deg, #1b1d4d 0%, #3a3d8c 100%);
         color: white;
@@ -102,50 +103,12 @@
         box-shadow: 0 8px 15px rgba(255, 152, 0, 0.2);
     }
     
-    .welcome-user {
-        background: linear-gradient(135deg, #f0f0f5 0%, #ffffff 100%);
-        border-radius: 12px;
-        padding: 40px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-    
-    .welcome-user h2 {
-        color: #1b1d4d;
-        font-weight: 700;
-    }
-    
     .support-section {
         background-color: #f8f9fa;
         border-radius: 12px;
         padding: 30px;
         margin-top: 40px;
         border-left: 5px solid #ff9800;
-    }
-    
-    .stat-card {
-        background-color: #1b1d4d;
-        color: white;
-        border-radius: 12px;
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(27, 29, 77, 0.2);
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-    
-    .stat-label {
-        font-size: 1rem;
-        opacity: 0.8;
     }
     
     .benefit-icon {
@@ -160,58 +123,806 @@
         font-size: 24px;
         color: #1b1d4d;
     }
+
+    /* Chỉ dùng cho phần không đăng nhập */
+    /* Điều chỉnh cho các nút CTA ở cùng độ cao */
+    .button-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        height: 100%;
+    }
+
+    /* Đảm bảo các card feature có cùng chiều cao */
+    .same-height-cards {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .same-height-cards .feature-card {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .same-height-cards .feature-card .card-body {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    /* Các style mới cho phần đã đăng nhập */
+    /* Welcome section */
+    .welcome-section {
+        background: linear-gradient(135deg, #f0f0f5 0%, #ffffff 100%);
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+    }
+    
+    .welcome-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .welcome-header .fa-award {
+        font-size: 24px;
+        color: #ff9800;
+        margin-right: 15px;
+    }
+    
+    .user-name {
+        color: #1b1d4d;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin: 0;
+        word-wrap: break-word;
+        max-width: 100%;
+    }
+    
+    /* Dashboard/tab navigation */
+    .dashboard-tabs {
+        display: flex;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        padding: 5px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+    }
+
+    .tab-item {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        font-weight: 500;
+    }
+
+    .tab-item.active {
+        background-color: #1b1d4d;
+        color: white;
+    }
+
+    .tab-item:not(.active):hover {
+        background-color: #e9ecef;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+    
+    /* Dashboard sections */
+    .dashboard-section {
+        margin-bottom: 30px;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1b1d4d;
+        margin: 0;
+    }
+    
+    .see-all {
+        font-size: 0.9rem;
+        color: #1b1d4d;
+        text-decoration: none;
+    }
+    
+    .see-all:hover {
+        text-decoration: underline;
+    }
+    
+    /* Feature grid */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .card-description {
+        color: #6c757d;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+    
+    /* Quick action buttons */
+    .quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .action-btn {
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        flex: 1;
+        min-width: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .action-btn i {
+        margin-right: 6px;
+    }
+    
+    .action-btn.primary {
+        background-color: #1b1d4d;
+        color: white;
+    }
+    
+    .action-btn.primary:hover {
+        background-color: #3a3d8c;
+    }
+    
+    .action-btn.secondary {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+    
+    .action-btn.secondary:hover {
+        background-color: #dde2e6;
+    }
+    
+    /* Icon colors */
+    .icon-cv {
+        color: #4285f4;
+    }
+
+    .icon-job {
+        color: #34a853;
+    }
+
+    .icon-chat {
+        color: #ea4335;
+    }
+
+    .icon-profile {
+        color: #fbbc05;
+    }
+
+    .icon-admin {
+        color: #7b1fa2;
+    }
+    
+    /* Recent activity */
+    .recent-activity {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .activity-item {
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        margin-bottom: 10px;
+        position: relative;
+        border-left: 3px solid #1b1d4d;
+    }
+    
+    .activity-item .time {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .activity-item .activity-action {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 0.9rem;
+        color: #1b1d4d;
+    }
+    
+    .activity-item .activity-action:hover {
+        color: #3a3d8c;
+    }
+    
+    /* Jobs */
+    .job-item {
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        margin-bottom: 10px;
+        border-left: 3px solid #34a853;
+    }
+
+    .job-title {
+        font-weight: 600;
+        color: #1b1d4d;
+        margin-bottom: 5px;
+    }
+
+    .job-company {
+        color: #495057;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+
+    .job-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .job-tag {
+        background-color: #e9ecef;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        color: #495057;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .action-btn {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+        }
+        
+        .user-name {
+            font-size: 1.5rem;
+        }
+        
+        .welcome-title {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .welcome-title .fa-award {
+            margin-bottom: 10px;
+        }
+    }
 </style>
 
 {% if user.is_authenticated %}
-    <div class="container mt-5">
-        <div class="welcome-user">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h2><i class="fas fa-award"></i> Chào mừng, {{ user.student_profile.name }}!</h2>
-                    <p class="lead mt-3">Chúng tôi rất vui khi được đồng hành cùng bạn trên hành trình phát triển nghề nghiệp. Khám phá các công cụ và cơ hội dành riêng cho bạn.</p>
-                </div>
-                <div class="col-md-4 text-center">
-                    <!-- <img src="{% static 'images/logo_ecom3.png' %}" alt="Welcome" class="img-fluid" style="max-height: 150px;"> -->
-                    <!-- <img src="{% static 'images/logo_ecom3.png' %}" alt="logo_ecom" style="width:150px"> -->
-                     
-                    
-                </div>
+<div class="container mt-5">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <div class="welcome-header">
+            <i class="fas fa-award"></i>
+            <h2 class="user-name">
+                Chào mừng, 
+                {% if user.is_staff %}
+                    {{ user.username }} (Admin)
+                {% elif user.student_profile.name %}
+                    {{ user.student_profile.name }}
+                {% else %}
+                    {{ user.username }}
+                {% endif %}!
+            </h2>
+        </div>
+        <p>Khám phá các tính năng và công cụ để tối ưu hóa trải nghiệm của bạn trên nền tảng.</p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="dashboard-tabs">
+        <div class="tab-item active" data-tab="tab-main">Tổng quan</div>
+        {% if user.is_staff %}
+        <div class="tab-item" data-tab="tab-management">Quản lý hệ thống</div>
+        {% else %}
+        <div class="tab-item" data-tab="tab-jobs">Việc làm</div>
+        {% endif %}
+        <div class="tab-item" data-tab="tab-cv">Hồ sơ CV</div>
+        <div class="tab-item" data-tab="tab-chat">Hỗ trợ & Chat</div>
+    </div>
+
+    <!-- Main Tab (Default) -->
+    <div id="tab-main" class="tab-content active">
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">Tính năng nổi bật</h3>
             </div>
             
-            <div class="row mt-4">
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-number">5+</div>
-                        <div class="stat-label">Công cụ AI hỗ trợ</div>
+            <div class="feature-grid">
+                <!-- CV Management Feature -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-cv">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h5 class="card-title">Quản lý CV</h5>
+                        <p class="card-description">Tạo và quản lý CV chuyên nghiệp với sự hỗ trợ từ AI</p>
+                        <div class="quick-actions">
+                            {% if user.is_staff %}
+                            <a href="{% url 'cv_list' %}" class="action-btn primary">
+                                <i class="fas fa-list"></i> Danh sách CV
+                            </a>
+                            {% else %}
+                            <a href="{% url 'cv-form' %}" class="action-btn primary">
+                                <i class="fas fa-plus"></i> Tạo CV mới
+                            </a>
+                            <a href="{% url 'cv_list' %}" class="action-btn secondary">
+                                <i class="fas fa-list"></i> CV của tôi
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-number">100+</div>
-                        <div class="stat-label">Cơ hội việc làm mới</div>
+                
+                <!-- Job Management Feature -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-job">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h5 class="card-title">Việc làm</h5>
+                        <p class="card-description">
+                            {% if user.is_staff %}
+                            Quản lý và đăng tải cơ hội việc làm mới cho sinh viên
+                            {% else %}
+                            Tìm kiếm và ứng tuyển các cơ hội việc làm phù hợp
+                            {% endif %}
+                        </p>
+                        <div class="quick-actions">
+                            {% if user.is_staff %}
+                            <a href="{% url 'import_jobs' %}" class="action-btn primary">
+                                <i class="fas fa-upload"></i> Thêm việc làm
+                            </a>
+                            <a href="{% url 'job_list' %}" class="action-btn secondary">
+                                <i class="fas fa-list"></i> Danh sách
+                            </a>
+                            {% else %}
+                            <a href="{% url 'job_list' %}" class="action-btn primary">
+                                <i class="fas fa-search"></i> Tìm việc
+                            </a>
+                            <a href="{% url 'depart_recommended_jobs' %}" class="action-btn secondary">
+                                <i class="fas fa-star"></i> Đề xuất
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Hỗ trợ từ đội ngũ chuyên gia</div>
+                
+                <!-- AI Assistant Feature -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-chat">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h5 class="card-title">Trợ lý AI</h5>
+                        <p class="card-description">Nhận hỗ trợ từ trợ lý ảo thông minh Gemini</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'chat_with_gemini' %}" class="action-btn primary">
+                                <i class="fas fa-comments"></i> Chat với Gemini
+                            </a>
+                            <a href="{% url 'chat_with_admin' %}" class="action-btn secondary">
+                                <i class="fas fa-headset"></i> Hỗ trợ Admin
+                            </a>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Profile Management Feature -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-profile">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h5 class="card-title">Hồ sơ cá nhân</h5>
+                        <p class="card-description">Cập nhật thông tin cá nhân và quản lý tài khoản</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'profile' %}" class="action-btn primary">
+                                <i class="fas fa-id-card"></i> Xem hồ sơ
+                            </a>
+                            <a href="{% url 'update_profile' %}" class="action-btn secondary">
+                                <i class="fas fa-edit"></i> Cập nhật
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if user.is_staff %}
+                <!-- Admin Tools Feature -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-admin">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h5 class="card-title">Công cụ quản trị</h5>
+                        <p class="card-description">Quản lý người dùng, dữ liệu và hoạt động của hệ thống</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'student_management' %}" class="action-btn primary">
+                                <i class="fas fa-users"></i> Quản lý sinh viên
+                            </a>
+                            <a href="{% url 'import_student' %}" class="action-btn secondary">
+                                <i class="fas fa-user-plus"></i> Thêm sinh viên
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Recent Activities Section -->
+        <!-- <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">Hoạt động gần đây</h3>
             </div>
             
-            <div class="support-section mt-4">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h4><i class="fas fa-headset"></i> Cần trợ giúp thêm?</h4>
-                        <p>Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc và hỗ trợ bạn trong quá trình tìm kiếm việc làm.</p>
+            <ul class="recent-activity">
+                <li class="activity-item">
+                    <p><strong>Cập nhật dữ liệu việc làm mới</strong> - Nhiều vị trí mới đã được thêm vào hệ thống</p>
+                    <div class="time">Hôm nay</div>
+                    <a href="{% url 'job_list' %}" class="activity-action">Xem ngay <i class="fas fa-chevron-right"></i></a>
+                </li>
+                <li class="activity-item">
+                    <p><strong>Hướng dẫn sử dụng Gemini AI</strong> - Cách tận dụng tối đa công cụ AI</p>
+                    <div class="time">Hôm qua</div>
+                    <a href="#" class="activity-action">Xem hướng dẫn <i class="fas fa-chevron-right"></i></a>
+                </li>
+                <li class="activity-item">
+                    <p><strong>Tính năng mới:</strong> So sánh CV với yêu cầu công việc tự động</p>
+                    <div class="time">3 ngày trước</div>
+                    <a href="#" class="activity-action">Thử ngay <i class="fas fa-chevron-right"></i></a>
+                </li>
+            </ul>
+        </div> -->
+    </div>
+
+    <!-- Management Tab (Admin only) -->
+    {% if user.is_staff %}
+    <div id="tab-management" class="tab-content">
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">Quản lý hệ thống</h3>
+            </div>
+            
+            <div class="feature-grid">
+                <!-- Student Management -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-profile">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h5 class="card-title">Quản lý sinh viên</h5>
+                        <p class="card-description">Thêm, cập nhật và xem thông tin sinh viên</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'student_management' %}" class="action-btn primary">
+                                <i class="fas fa-users"></i> Danh sách sinh viên
+                            </a>
+                            <a href="{% url 'import_student' %}" class="action-btn secondary">
+                                <i class="fas fa-file-import"></i> Import CSV
+                            </a>
+                            <a href="{% url 'update_from_gsheet' %}" class="action-btn secondary">
+                                <i class="fas fa-sync"></i> Cập nhật từ GSheet
+                            </a>
+                        </div>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <a href="{% url 'chat_with_admin' %}" class="btn btn-warning cta-button"><i class="fas fa-comment-dots"></i> Liên hệ Admin</a>
+                </div>
+                
+                <!-- Job Management -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-job">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h5 class="card-title">Quản lý việc làm</h5>
+                        <p class="card-description">Thêm và quản lý các cơ hội việc làm</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'job_list' %}" class="action-btn primary">
+                                <i class="fas fa-list"></i> Danh sách việc làm
+                            </a>
+                            <a href="{% url 'import_jobs' %}" class="action-btn secondary">
+                                <i class="fas fa-file-import"></i> Import CSV
+                            </a>
+                            <a href="{% url 'update_jobs_from_drive' %}" class="action-btn secondary">
+                                <i class="fas fa-cloud-download-alt"></i> Cập nhật từ Drive
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Dashboard -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-admin">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h5 class="card-title">Phân tích dữ liệu</h5>
+                        <p class="card-description">Xem báo cáo và thống kê về hoạt động của hệ thống</p>
+                        <div class="quick-actions">
+                            <a href="#" class="action-btn primary">
+                                <i class="fas fa-chart-line"></i> Thống kê
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Support Management -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-chat">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h5 class="card-title">Quản lý hỗ trợ</h5>
+                        <p class="card-description">Xem và trả lời các yêu cầu hỗ trợ từ sinh viên</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'chat_dashboard' %}" class="action-btn primary">
+                                <i class="fas fa-comments"></i> Hội thoại
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    {% else %}
+    <!-- Jobs Tab (Students only) -->
+    <div id="tab-jobs" class="tab-content">
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">Việc làm đề xuất</h3>
+                <a href="{% url 'depart_recommended_jobs' %}" class="see-all">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+            
+            <div class="job-list">
+                <!-- Sample job items - would be dynamically generated in actual implementation -->
+                <div class="job-item">
+                    <div class="job-title">Frontend Developer Internship</div>
+                    <div class="job-company">Tech Solutions Company</div>
+                    <p>Cơ hội thực tập tại công ty công nghệ hàng đầu. Phát triển kỹ năng với các dự án thực tế.</p>
+                    <div class="job-tags">
+                        <span class="job-tag">ReactJS</span>
+                        <span class="job-tag">HTML/CSS</span>
+                        <span class="job-tag">JavaScript</span>
+                    </div>
+                </div>
+                
+                <div class="job-item">
+                    <div class="job-title">Digital Marketing Specialist</div>
+                    <div class="job-company">E-Commerce Solutions</div>
+                    <p>Quản lý chiến dịch marketing số, phân tích dữ liệu và tối ưu hóa chiến lược.</p>
+                    <div class="job-tags">
+                        <span class="job-tag">SEO</span>
+                        <span class="job-tag">Google Analytics</span>
+                        <span class="job-tag">Content Marketing</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-header mt-4">
+                <h3 class="section-title">Công cụ tìm kiếm</h3>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-job">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h5 class="card-title">Tìm kiếm việc làm</h5>
+                        <p class="card-description">Tìm kiếm cơ hội việc làm theo kỹ năng, vị trí và công ty</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'job_list' %}" class="action-btn primary">
+                                <i class="fas fa-list"></i> Tất cả việc làm
+                            </a>
+                            <a href="{% url 'search_results' %}" class="action-btn secondary">
+                                <i class="fas fa-filter"></i> Tìm kiếm nâng cao
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-cv">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h5 class="card-title">So sánh CV với việc làm</h5>
+                        <p class="card-description">Kiểm tra mức độ phù hợp của CV của bạn với yêu cầu công việc</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'cv_list' %}" class="action-btn primary">
+                                <i class="fas fa-check-circle"></i> So sánh CV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- CV Tab -->
+    <div id="tab-cv" class="tab-content">
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">Quản lý CV</h3>
+                <a href="{% url 'cv_list' %}" class="see-all">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+            
+            <div class="feature-grid">
+                {% if not user.is_staff %}
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-cv">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h5 class="card-title">Tạo CV mới</h5>
+                        <p class="card-description">Tạo CV chuyên nghiệp với mẫu được thiết kế đẹp mắt</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'cv-form' %}" class="action-btn primary">
+                                <i class="fas fa-plus"></i> Tạo CV mới
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-cv">
+                            <i class="fas fa-list-alt"></i>
+                        </div>
+                        <h5 class="card-title">Danh sách CV</h5>
+                        <p class="card-description">Quản lý các CV đã tạo</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'cv_list' %}" class="action-btn primary">
+                                <i class="fas fa-eye"></i> Xem danh sách
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if not user.is_staff %}
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-cv">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h5 class="card-title">Tối ưu hóa CV với AI</h5>
+                        <p class="card-description">Sử dụng công nghệ AI để cải thiện CV của bạn</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'chat_with_gemini' %}" class="action-btn primary">
+                                <i class="fas fa-robot"></i> Sử dụng AI
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-cv">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h5 class="card-title">Xuất CV dạng PDF</h5>
+                        <p class="card-description">Xuất CV của bạn thành file PDF để dễ dàng chia sẻ với nhà tuyển dụng</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'cv_list' %}" class="action-btn primary">
+                                <i class="fas fa-download"></i> Chọn CV để xuất
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Tab -->
+    <div id="tab-chat" class="tab-content">
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3 class="section-title">Hỗ trợ & Chat</h3>
+            </div>
+            
+            <div class="feature-grid">
+                <!-- Gemini AI Assistant -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-chat">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h5 class="card-title">Chat với Gemini AI</h5>
+                        <p class="card-description">Nhận hỗ trợ từ trợ lý ảo thông minh về CV, việc làm và kỹ năng</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'chat_with_gemini' %}" class="action-btn primary">
+                                <i class="fas fa-comments"></i> Bắt đầu chat
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin Support -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-chat">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h5 class="card-title">Liên hệ Admin</h5>
+                        <p class="card-description">Nhận hỗ trợ trực tiếp từ đội ngũ quản trị viên</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'chat_with_admin' %}" class="action-btn primary">
+                                <i class="fas fa-paper-plane"></i> Gửi tin nhắn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Dashboard -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-chat">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <h5 class="card-title">Tất cả hội thoại</h5>
+                        <p class="card-description">Xem và tiếp tục các cuộc trò chuyện của bạn</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'chat_dashboard' %}" class="action-btn primary">
+                                <i class="fas fa-list"></i> Xem hội thoại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Bot -->
+                <div class="feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon icon-chat">
+                            <i class="fas fa-comment-alt"></i>
+                        </div>
+                        <h5 class="card-title">Chat với Bot</h5>
+                        <p class="card-description">Nhận câu trả lời nhanh cho những câu hỏi thường gặp</p>
+                        <div class="quick-actions">
+                            <a href="{% url 'chat_with_bot' %}" class="action-btn primary">
+                                <i class="fas fa-robot"></i> Chat với Bot
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% else %}
     <div class="container mt-5">
         <div class="hero-section">
@@ -267,7 +978,7 @@
 
         <div class="row">
             <!-- Hướng dẫn bên trái -->
-            <div class="col-md-6 mb-4">
+            <div class="col-md-6 mb-4 same-height-cards">
                 <div class="feature-card card">
                     <div class="card-body">
                         <div class="feature-icon text-center">
@@ -279,9 +990,10 @@
                             <li><strong>Tạo CV chuyên nghiệp:</strong> Xây dựng hồ sơ nổi bật với công cụ tạo CV trực quan.</li>
                             <li><strong>Gợi ý thông minh:</strong> Nhận đề xuất việc làm phù hợp với ngành học và kỹ năng.</li>
                             <li><strong>Trợ lý ảo Gemini:</strong> Tận dụng công nghệ AI của Google để hoàn thiện hồ sơ.</li>
+                            <li><strong>Sửa CV thông minh:</strong> Sửa CV thông minh thông qua công nghệ RAG và chatbot AI</li>
                             <li><strong>Tương tác trực tiếp:</strong> Chat với admin hoặc sử dụng chatbot hỗ trợ 24/7.</li>
                         </ul>
-                        <div class="text-center">
+                        <div class="button-container">
                             <a href="{% url 'sign_in' %}" class="btn btn-primary cta-button"><i class="fas fa-graduation-cap"></i> Khám phá ngay</a>
                         </div>
                     </div>
@@ -289,7 +1001,7 @@
             </div>
 
             <!-- Hướng dẫn bên phải -->
-            <div class="col-md-6 mb-4">
+            <div class="col-md-6 mb-4 same-height-cards">
                 <div class="feature-card card">
                     <div class="card-body">
                         <div class="feature-icon text-center">
@@ -303,7 +1015,7 @@
                             <li><strong>Hỗ trợ đa nền tảng:</strong> Tương tác với sinh viên qua hệ thống chat hoặc chatbot thông minh.</li>
                             <li><strong>Tích hợp AI:</strong> Công nghệ AI phân tích CV và đánh giá mức độ phù hợp của ứng viên.</li>
                         </ul>
-                        <div class="text-center">
+                        <div class="button-container">
                             <a href="{% url 'sign_in' %}" class="btn btn-success cta-button"><i class="fas fa-chart-line"></i> Bắt đầu quản lý</a>
                         </div>
                     </div>
@@ -325,4 +1037,27 @@
         </div>
     </div>
 {% endif %}
+
+<script>
+    // Tab Navigation Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabItems = document.querySelectorAll('.tab-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all tabs
+                tabItems.forEach(tab => tab.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    });
+</script>
 {% endblock %}

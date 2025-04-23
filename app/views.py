@@ -1695,6 +1695,9 @@ def compare_cv_with_job(request, pk):
 
 ###################################
 ######## Module Chatbot gemini ####
+###################################
+
+
 
 
 import google.generativeai as genai
@@ -1764,7 +1767,6 @@ def chat_with_gemini(request):
             return JsonResponse({"error": f"Lỗi: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Phương thức không hợp lệ."}, status=405)
-
 
 # hàm này đang bị bà điên bà khùng, làm lại là ok
 def retrieve_context_information(query, student):
@@ -1847,6 +1849,8 @@ def retrieve_context_information(query, student):
         cv_list.append(cv_data)
 
     context_info["all_cvs"] = cv_list
+    # print(cv_data)
+    print(cv_list)
 
     # 3. Tìm câu hỏi tương tự (vẫn giữ vì liên quan đến query)
     context_info["similar_questions"] = find_similar_questions(query)
@@ -1991,7 +1995,8 @@ def create_augmented_prompt(user_message, context_info):
 def format_context_info(context_info):
     """Định dạng thông tin bối cảnh một cách cấu trúc và rõ ràng"""
     student_info = context_info.get("student_info", {})
-    cv_info = context_info.get("cv_info", {})
+    all_cvs = context_info.get("all_cvs", [])
+    similar_questions = context_info.get("similar_questions", [])
     
     formatted_info = ""
     
@@ -2000,16 +2005,73 @@ def format_context_info(context_info):
         formatted_info += f"- Tên: {student_info.get('name', 'Không có')}\n"
         formatted_info += f"- MSSV: {student_info.get('student_code', 'Không có')}\n"
         formatted_info += f"- Ngành học: {student_info.get('department', 'Không có')}\n"
+        formatted_info += f"- Email: {student_info.get('email', 'Không có')}\n"
+        formatted_info += f"- Năm học: {student_info.get('study_year', 'Không có')}\n"
     
-    if cv_info:
+    if all_cvs:
         formatted_info += "\n## Thông tin CV\n"
-        formatted_info += f"- Kỹ năng: {', '.join(cv_info.get('skills', ['Không có']))}\n"
-        if cv_info.get('experiences'):
-            formatted_info += "- Kinh nghiệm:\n"
-            for exp in cv_info.get('experiences', []):
-                formatted_info += f"  * {exp.get('role', '')} tại {exp.get('company', '')}\n"
+        for i, cv in enumerate(all_cvs):
+            formatted_info += f"\n### CV {i+1}: {cv.get('name', 'Không có tên')}\n"
+            
+            if cv.get('about_me'):
+                formatted_info += f"- Giới thiệu: {cv.get('about_me')}\n"
+            
+            if cv.get('skills'):
+                formatted_info += f"- Kỹ năng: {', '.join(cv.get('skills', ['Không có']))}\n"
+            
+            if cv.get('experiences'):
+                formatted_info += "- Kinh nghiệm:\n"
+                for exp in cv.get('experiences', []):
+                    formatted_info += f"  * {exp.get('role', '')} tại {exp.get('company', '')}"
+                    if exp.get('start_date') and exp.get('end_date'):
+                        formatted_info += f" ({exp.get('start_date')} - {exp.get('end_date')})\n"
+                    else:
+                        formatted_info += "\n"
+                    # Thêm context/mô tả công việc
+                    if exp.get('description'):
+                        formatted_info += f"    Mô tả: {exp.get('description')}\n"
+            
+            if cv.get('education'):
+                formatted_info += "- Học vấn:\n"
+                for edu in cv.get('education', []):
+                    formatted_info += f"  * {edu.get('degree', '')} tại {edu.get('university', '')}"
+                    if edu.get('start_year') and edu.get('end_year'):
+                        formatted_info += f" ({edu.get('start_year')} - {edu.get('end_year')})\n"
+                    else:
+                        formatted_info += "\n"
+            
+            if cv.get('projects'):
+                formatted_info += "- Dự án:\n"
+                for proj in cv.get('projects', []):
+                    formatted_info += f"  * {proj.get('name', '')}\n"
+                    # Thêm nội dung dự án
+                    if proj.get('content'):
+                        formatted_info += f"    Nội dung: {proj.get('content')}\n"
+                    # Thêm các liên kết dự án nếu có
+                    if proj.get('links') and len(proj.get('links')) > 0:
+                        formatted_info += f"    Liên kết: {', '.join(proj.get('links'))}\n"
+            
+            if cv.get('languages'):
+                formatted_info += "- Ngôn ngữ:\n"
+                for lang in cv.get('languages', []):
+                    formatted_info += f"  * {lang.get('language', '')}"
+                    if lang.get('description'):
+                        formatted_info += f": {lang.get('description')}\n"
+                    else:
+                        formatted_info += "\n"
+            
+            if cv.get('certifications'):
+                formatted_info += f"- Chứng chỉ: {', '.join(cv.get('certifications', ['Không có']))}\n"
+    
+    if similar_questions:
+        formatted_info += "\n## Câu hỏi tương tự\n"
+        for i, q in enumerate(similar_questions):
+            formatted_info += f"- Q{i+1}: {q.get('question')}\n"
+            formatted_info += f"  A{i+1}: {q.get('answer')}\n"
     
     return formatted_info
+
+
 
 
 #############################
