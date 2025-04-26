@@ -111,22 +111,6 @@ Can be found in the [Deployment Guide](docs/deployment.md).
 
 ## 👥 Contributors
 
-- [Lead Developer Name](https://github.com/leaddev)
-- [Backend Developer Name](https://github.com/backenddev)
-- [Frontend Developer Name](https://github.com/frontenddev)
-- [ML Engineer Name](https://github.com/mlengineer)
+- Luan Tran - me 
 
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For support, questions, or feedback, please:
-- Open an [issue](https://github.com/yourusername/due_job_rcm/issues)
-- Contact us at support@example.com
-- Visit our [documentation](https://due-job-rcm.readthedocs.io/)
-
----
-
-Made with ❤️ for Danang University of Economics students
+## Please contact the author at tranduyluantranduyluan@gmail.com for permission requests .
