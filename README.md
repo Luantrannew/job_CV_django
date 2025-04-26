@@ -84,16 +84,6 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-## 🚀 Deployment
-
-Detailed deployment instructions for:
-- Docker containers
-- Heroku
-- AWS EB/EC2
-- DigitalOcean
-
-Can be found in the [Deployment Guide](docs/deployment.md).
-
 ## 🔒 Security Features
 
 - CSRF protection
